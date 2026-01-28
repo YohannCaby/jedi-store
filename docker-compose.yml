@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pokestore-postgres
+    environment:
+      POSTGRES_DB: pokestore
+      POSTGRES_USER: pokestore
+      POSTGRES_PASSWORD: pokestore
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pokestore-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pokestore -d pokestore"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: pokestore-api
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokestore
+      SPRING_DATASOURCE_USERNAME: pokestore
+      SPRING_DATASOURCE_PASSWORD: pokestore
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pokestore-network
+
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: pokestore-mcp-server
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokestore
+      SPRING_DATASOURCE_USERNAME: pokestore
+      SPRING_DATASOURCE_PASSWORD: pokestore
+      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pokestore-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  orchestrateur:
+    build:
+      context: ./orchestrateur
+      dockerfile: Dockerfile
+    container_name: pokestore-orchestrateur
+    ports:
+      - "8080:8080"
+    environment:
+      MCP_SERVER_URL: http://mcp-server:8081
+      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+    depends_on:
+      - mcp-server
+    networks:
+      - pokestore-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres_data:
+
+networks:
+  pokestore-network:
+    driver: bridge
