@@ -1,4 +1,4 @@
-package com.pokestore.db.config;
+package com.pokestore.api.config;
 
 import com.pokestore.core.port.in.CustomerUseCase;
 import com.pokestore.core.port.in.OrderUseCase;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = "com.pokestore.db.repository")
 @EntityScan(basePackages = "com.pokestore.db.entity")
 @EnableTransactionManagement
-public class DatabaseConfig {
+public class UseCaseConfig {
 
     @Bean
     public CustomerUseCase customerUseCase(CustomerRepositoryPort customerRepository,
