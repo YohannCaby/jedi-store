@@ -25,7 +25,7 @@ public class McpClient {
         McpClientRequest request = new McpClientRequest(message, sessionId);
 
         return webClient.post()
-                .uri("/mcp")
+                .uri("/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()

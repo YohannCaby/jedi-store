@@ -1,42 +1,46 @@
 package com.pokestore.orchestrateur.service;
 
-import com.pokestore.mcp.client.McpClient;
-import com.pokestore.mcp.client.dto.McpClientResponse;
 import com.pokestore.orchestrateur.dto.ChatRequest;
 import com.pokestore.orchestrateur.dto.ChatResponse;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class ChatService {
 
-    private final McpClient mcpClient;
+    private final ChatClient chatClient;
+    private final ToolCallbackProvider toolCallbackProvider;
 
-    public ChatService(McpClient mcpClient) {
-        this.mcpClient = mcpClient;
+    public ChatService(ChatClient.Builder chatClientBuilder,
+                       ToolCallbackProvider toolCallbackProvider) {
+        this.chatClient = chatClientBuilder.build();
+        this.toolCallbackProvider = toolCallbackProvider;
     }
 
-    public ChatResponse chat(ChatRequest request) {
-        McpClientResponse mcpResponse = mcpClient
-                .chat(request.message(), request.sessionId())
-                .block();
-
-        String responseContent = mcpResponse != null ? mcpResponse.content() : "Error: No response from MCP server";
-
-        return new ChatResponse(
-                request.sessionId(),
-                request.message(),
-                responseContent
-        );
+    public Mono<ChatResponse> chat(ChatRequest request) {
+        return Mono.fromCallable(() -> {
+            String response = chatClient.prompt()
+                    .user(request.message())
+                    .toolCallbacks(toolCallbackProvider.getToolCallbacks())
+                    .call()
+                    .content();
+            return new ChatResponse(request.sessionId(), request.message(), response);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Flux<String> chatStream(ChatRequest request) {
-        return mcpClient.chatStream(request.message(), request.sessionId())
-                .filter(response -> !response.complete())
-                .map(McpClientResponse::content);
+        return chatClient.prompt()
+                .user(request.message())
+                .toolCallbacks(toolCallbackProvider.getToolCallbacks())
+                .stream()
+                .content();
     }
 
-    public void clearSession(String sessionId) {
-        mcpClient.clearSession(sessionId).subscribe();
+    public Mono<Void> clearSession(String sessionId) {
+        return Mono.empty();
     }
 }

@@ -1,4 +1,4 @@
-package com.pokestore.api.config;
+package com.pokestore.mcp.server.config;
 
 import com.pokestore.core.port.in.CustomerUseCase;
 import com.pokestore.core.port.in.OrderUseCase;
@@ -9,6 +9,9 @@ import com.pokestore.core.port.out.ProductRepositoryPort;
 import com.pokestore.core.service.CustomerService;
 import com.pokestore.core.service.OrderService;
 import com.pokestore.core.service.ProductService;
+import com.pokestore.mcp.server.tools.PokeStoreTools;
+import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,5 +40,12 @@ public class UseCaseConfig {
                                      CustomerRepositoryPort customerRepository,
                                      ProductRepositoryPort productRepository) {
         return new OrderService(orderRepository, customerRepository, productRepository);
+    }
+
+    @Bean
+    public ToolCallbackProvider pokeStoreToolCallbackProvider(PokeStoreTools pokeStoreTools) {
+        return MethodToolCallbackProvider.builder()
+                .toolObjects(pokeStoreTools)
+                .build();
     }
 }

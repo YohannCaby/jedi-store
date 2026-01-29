@@ -1,0 +1,10 @@
+spring:
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: ministral-3:3b
+
+mcp:
+  server:
+    url: http://localhost:8081

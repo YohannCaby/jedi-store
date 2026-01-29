@@ -218,8 +218,8 @@ DECLARE
     statuses VARCHAR(20)[] := ARRAY['IN_PROGRESS', 'DELIVERED', 'CANCELLED'];
 BEGIN
     FOR i IN 1..1000 LOOP
-        -- Random customer (1-100)
-        customer_id := floor(random() * 100 + 1)::INTEGER;
+        -- Random customer from existing customers
+        SELECT id INTO customer_id FROM customers ORDER BY random() LIMIT 1;
 
         -- Random date in the last 2 years
         order_date := NOW() - (random() * 730 || ' days')::INTERVAL;
@@ -237,8 +237,8 @@ BEGIN
         total := 0;
 
         FOR j IN 1..num_lines LOOP
-            -- Random product (1-100)
-            product_id := floor(random() * 100 + 1)::INTEGER;
+            -- Random product from existing products
+            SELECT id INTO product_id FROM products ORDER BY random() LIMIT 1;
 
             -- Random quantity (1-10)
             quantity := floor(random() * 10 + 1)::INTEGER;

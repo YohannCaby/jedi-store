@@ -9,12 +9,12 @@ import com.pokestore.core.port.in.OrderUseCase.OrderLineRequest;
 import com.pokestore.core.port.in.ProductUseCase;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 public class PokeStoreTools {
 
     private final CustomerUseCase customerUseCase;
