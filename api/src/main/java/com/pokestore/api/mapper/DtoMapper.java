@@ -1,12 +1,17 @@
 package com.pokestore.api.mapper;
 
-import com.pokestore.api.controller.dto.*;
+import com.pokestore.api.generated.model.CustomerDto;
+import com.pokestore.api.generated.model.OrderDto;
+import com.pokestore.api.generated.model.OrderLineDto;
+import com.pokestore.api.generated.model.ProductDto;
 import com.pokestore.core.domain.entity.Customer;
 import com.pokestore.core.domain.entity.Order;
 import com.pokestore.core.domain.entity.OrderLine;
 import com.pokestore.core.domain.entity.Product;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,38 +22,38 @@ public class DtoMapper {
         if (customer == null) {
             return null;
         }
-        return new CustomerDto(
-                customer.getId(),
-                customer.getName(),
-                customer.getEmail(),
-                customer.getAddress()
-        );
+        CustomerDto dto = new CustomerDto();
+        dto.setId(customer.getId());
+        dto.setName(customer.getName());
+        dto.setEmail(customer.getEmail());
+        dto.setAddress(customer.getAddress());
+        return dto;
     }
 
     public ProductDto toProductDto(Product product) {
         if (product == null) {
             return null;
         }
-        return new ProductDto(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getCategory()
-        );
+        ProductDto dto = new ProductDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrice());
+        dto.setCategory(product.getCategory());
+        return dto;
     }
 
     public OrderLineDto toOrderLineDto(OrderLine line) {
         if (line == null) {
             return null;
         }
-        return new OrderLineDto(
-                line.getId(),
-                toProductDto(line.getProduct()),
-                line.getQuantity(),
-                line.getUnitPrice(),
-                line.getLineTotal()
-        );
+        OrderLineDto dto = new OrderLineDto();
+        dto.setId(line.getId());
+        dto.setProduct(toProductDto(line.getProduct()));
+        dto.setQuantity(line.getQuantity());
+        dto.setUnitPrice(line.getUnitPrice());
+        dto.setLineTotal(line.getLineTotal());
+        return dto;
     }
 
     public OrderDto toOrderDto(Order order) {
@@ -59,14 +64,18 @@ public class DtoMapper {
                 ? order.getLines().stream().map(this::toOrderLineDto).toList()
                 : Collections.emptyList();
 
-        return new OrderDto(
-                order.getId(),
-                order.getOrderDate(),
-                toCustomerDto(order.getCustomer()),
-                order.getStatus() != null ? order.getStatus().name() : null,
-                order.getTotalAmount(),
-                lineDtos
-        );
+        OrderDto dto = new OrderDto();
+        dto.setId(order.getId());
+        dto.setOrderDate(order.getOrderDate() != null
+                ? order.getOrderDate().atOffset(ZoneOffset.UTC)
+                : null);
+        dto.setCustomer(toCustomerDto(order.getCustomer()));
+        dto.setStatus(order.getStatus() != null
+                ? OrderDto.StatusEnum.fromValue(order.getStatus().name())
+                : null);
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setLines(lineDtos);
+        return dto;
     }
 
     public List<OrderDto> toOrderDtoList(List<Order> orders) {

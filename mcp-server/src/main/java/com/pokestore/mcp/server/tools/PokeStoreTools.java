@@ -1,14 +1,5 @@
 package com.pokestore.mcp.server.tools;
 
-import com.pokestore.core.domain.entity.Order;
-import com.pokestore.core.domain.entity.Product;
-import com.pokestore.core.domain.valueobject.OrderStatus;
-import com.pokestore.core.port.in.CustomerUseCase;
-import com.pokestore.core.port.in.OrderUseCase;
-import com.pokestore.core.port.in.OrderUseCase.OrderLineRequest;
-import com.pokestore.core.port.in.ProductUseCase;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,19 +8,10 @@ import java.util.stream.Collectors;
 @Service
 public class PokeStoreTools {
 
-    private final CustomerUseCase customerUseCase;
-    private final OrderUseCase orderUseCase;
-    private final ProductUseCase productUseCase;
-
-    public PokeStoreTools(CustomerUseCase customerUseCase,
-                          OrderUseCase orderUseCase,
-                          ProductUseCase productUseCase) {
-        this.customerUseCase = customerUseCase;
-        this.orderUseCase = orderUseCase;
-        this.productUseCase = productUseCase;
+    public PokeStoreTools() {
     }
 
-    @Tool(description = "Get all available products in the Poke Store")
+    /*@Tool(description = "Get all available products in the Poke Store")
     public String getAllProducts() {
         List<Product> products = productUseCase.getAllProducts();
         if (products.isEmpty()) {
@@ -139,5 +121,5 @@ public class PokeStoreTools {
                 .map(p -> String.format("- %s (ID: %d) - %.2f$ - %s",
                         p.getName(), p.getId(), p.getPrice(), p.getCategory()))
                 .collect(Collectors.joining("\n"));
-    }
+    }*/
 }

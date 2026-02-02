@@ -21,9 +21,9 @@
     <modules>
         <module>core</module>
         <module>bdd-connector</module>
+        <module>api-spec</module>
         <module>api</module>
         <module>mcp-server</module>
-        <module>mcp-client</module>
         <module>orchestrateur</module>
     </modules>
 
@@ -59,10 +59,9 @@
             </dependency>
             <dependency>
                 <groupId>com.pokestore</groupId>
-                <artifactId>mcp-client</artifactId>
+                <artifactId>api-spec</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <!-- PostgreSQL -->
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -91,16 +90,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <build>
         <pluginManagement>

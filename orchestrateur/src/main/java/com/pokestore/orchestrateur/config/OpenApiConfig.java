@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
+
     public OpenAPI orchestrateurOpenAPI() {
         return new OpenAPI()
                 .info(new Info()

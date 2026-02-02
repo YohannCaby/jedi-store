@@ -15,15 +15,6 @@
     <description>Module serveur MCP avec intégration Ollama</description>
 
     <dependencies>
-        <!-- Internal -->
-        <dependency>
-            <groupId>com.pokestore</groupId>
-            <artifactId>core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.pokestore</groupId>
-            <artifactId>bdd-connector</artifactId>
-        </dependency>
 
         <!-- Spring WebFlux for SSE -->
         <dependency>
@@ -53,6 +44,16 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- OpenApi generator dependencies -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,6 +61,80 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- Extraire api.yml depuis api-spec -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-openapi-spec</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.pokestore</groupId>
+                                    <artifactId>api-spec</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/api-spec</outputDirectory>
+                                    <includes>openapi/api.yml</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.10.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <library>spring-http-interface</library>
+                            <modelNameSuffix>Entity</modelNameSuffix>
+                            <inputSpec>${project.build.directory}/api-spec/openapi/api.yml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <apiPackage>com.pokestore.api.generated.client</apiPackage>
+                            <modelPackage>com.pokestore.api.generated.model</modelPackage>
+                            <templateDirectory>${project.basedir}/src/main/resources/custom</templateDirectory>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <java8>true</java8>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <sourceFolder>src/main/java</sourceFolder>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
