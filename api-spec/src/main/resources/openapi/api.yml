@@ -1,0 +1,277 @@
+openapi: 3.0.3
+info:
+  title: PokeStore API
+  description: API REST pour la gestion de la boutique Pokemon
+  version: 1.0.0
+  contact:
+    name: Groupe Tech
+    email: contact@pokestore.com
+servers:
+  - url: /
+    description: Serveur par defaut
+
+tags:
+  - name: Products
+    description: Gestion des produits Pokemon
+  - name: Customers
+    description: Gestion des clients
+  - name: Orders
+    description: Gestion des commandes
+
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Liste tous les produits
+      description: Retourne la liste complete de tous les produits disponibles
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: Liste des produits recuperee avec succes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Recupere un produit par ID
+      description: Retourne les details d'un produit specifique
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          description: ID du produit
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Produit trouve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '404':
+          description: Produit non trouve
+
+  /customers/{id}/orders:
+    get:
+      tags:
+        - Customers
+      summary: Liste les commandes d'un client
+      description: Retourne toutes les commandes passees par un client
+      operationId: getOrdersByCustomerId
+      parameters:
+        - name: id
+          in: path
+          description: ID du client
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste des commandes recuperee avec succes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: Cree une nouvelle commande
+      description: Cree une commande pour un client avec les produits specifies
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Commande creee avec succes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '400':
+          description: Donnees invalides
+
+  /orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Recupere une commande par ID
+      description: Retourne les details d'une commande specifique
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          description: ID de la commande
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Commande trouvee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '404':
+          description: Commande non trouvee
+
+  /orders/{id}/status:
+    put:
+      tags:
+        - Orders
+      summary: Met a jour le statut d'une commande
+      description: Modifie le statut d'une commande existante
+      operationId: updateOrderStatus
+      parameters:
+        - name: id
+          in: path
+          description: ID de la commande
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusRequest'
+      responses:
+        '200':
+          description: Statut mis a jour avec succes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '400':
+          description: Statut invalide
+        '404':
+          description: Commande non trouvee
+
+components:
+  schemas:
+    ProductDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+
+    CustomerDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+
+    OrderLineDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        product:
+          $ref: '#/components/schemas/ProductDto'
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        lineTotal:
+          type: number
+
+    OrderDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        orderDate:
+          type: string
+          format: date-time
+        customer:
+          $ref: '#/components/schemas/CustomerDto'
+        status:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - DELIVERED
+            - CANCELLED
+        totalAmount:
+          type: number
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineDto'
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - customerId
+        - lines
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderLineRequest'
+
+    OrderLineRequest:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          minimum: 1
+
+    UpdateStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - DELIVERED
+            - CANCELLED

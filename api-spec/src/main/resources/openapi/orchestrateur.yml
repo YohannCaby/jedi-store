@@ -1,0 +1,74 @@
+openapi: 3.0.3
+info:
+  title: PokeStore Orchestrateur API
+  description: API d'orchestration de chat avec Spring AI pour la boutique Pokemon
+  version: 1.0.0
+  contact:
+    name: Groupe Tech
+    email: contact@pokestore.com
+servers:
+  - url: /
+    description: Serveur par defaut
+
+tags:
+  - name: Chat
+    description: API de chat avec l'assistant IA Pokemon
+
+paths:
+  /chat:
+    post:
+      tags:
+        - Chat
+      summary: Envoie un message au chat
+      description: Envoie un message et recoit la reponse en streaming (Server-Sent Events)
+      operationId: chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Stream de reponse demarre
+          content:
+            text/event-stream:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Requete invalide
+
+  /chat/session/{sessionId}:
+    delete:
+      tags:
+        - Chat
+      summary: Supprime une session de chat
+      description: Efface l'historique de conversation d'une session
+      operationId: clearSession
+      parameters:
+        - name: sessionId
+          in: path
+          description: ID de la session a supprimer
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Session supprimee avec succes
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - sessionId
+        - message
+      properties:
+        sessionId:
+          type: string
+          description: ID de la session de chat
+        message:
+          type: string
+          description: Message de l'utilisateur
