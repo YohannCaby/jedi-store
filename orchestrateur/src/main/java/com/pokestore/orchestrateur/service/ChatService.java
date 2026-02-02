@@ -24,6 +24,15 @@ public class ChatService {
                        ToolCallbackProvider toolCallbackProvider) {
         this.chatMemory = chatMemory;
         this.chatClient = chatClientBuilder
+                .defaultSystem("""
+                        Tu es un assistant de support technique à une plateforme de e-commerce. Tu es spécialisé dans
+                        l'aide au professionel sollicité à une demande d'aide client. Pour cela tu utilise les outils
+                        mis à ta disposition.
+                        Si la demande utilisateur n'est pas dans ton périmètre d'action rappel l'objet de ta fonction par 
+                        la réponse suivante : "Je suis un assistant technique d'un plateforme de e-commerce, cette question
+                        n'est pas dansmes compétences".
+                        N'invente pas de réponses, ou ne simule pas de réponses.
+                        """)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .build();
         this.toolCallbackProvider = toolCallbackProvider;

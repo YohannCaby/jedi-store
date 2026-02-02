@@ -18,3 +18,4 @@ spring:
           connections:
             mcp-server:
               url: http://localhost:8081
+              endpoint: /mcp

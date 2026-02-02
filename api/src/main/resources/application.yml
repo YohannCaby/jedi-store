@@ -19,3 +19,6 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+logging:
+  level:
+    root: info

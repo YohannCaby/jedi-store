@@ -13,7 +13,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class ApiClientConfig {
 
-    @Value("${pokestore.api.base-url:http://localhost:8080}")
+    @Value("${pokestore.api.base-url:http://localhost:8082}")
     private String apiBaseUrl;
 
     @Bean
