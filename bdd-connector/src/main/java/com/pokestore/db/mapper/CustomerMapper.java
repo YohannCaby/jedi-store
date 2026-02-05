@@ -4,8 +4,20 @@ import com.pokestore.core.domain.entity.Customer;
 import com.pokestore.db.entity.CustomerEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class CustomerMapper {
+
+    public List<Customer> toDomain(List<CustomerEntity> entities) {
+        List<Customer> customers = new ArrayList<>();
+        if (entities == null) {
+            return customers;
+        }
+        entities.forEach((entity) -> customers.add(toDomain(entity)));
+        return customers;
+    }
 
     public Customer toDomain(CustomerEntity entity) {
         if (entity == null) {

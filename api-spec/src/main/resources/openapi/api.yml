@@ -86,6 +86,35 @@ paths:
                 items:
                   $ref: '#/components/schemas/OrderDto'
 
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: Recherche un client par nom et/ou email
+      description: Recherche un client par nom et/ou email
+      operationId: searchCustomers
+      parameters:
+        - name: name
+          in: query
+          description: Nom du client
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Email du client
+          required: false
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Liste des utilisateurs recherchés
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomersDto'
+
   /orders:
     post:
       tags:
@@ -196,6 +225,23 @@ components:
           type: string
         address:
           type: string
+
+    CustomersDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerDto'
+
+    UserSearchQueryDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
 
     OrderLineDto:
       type: object

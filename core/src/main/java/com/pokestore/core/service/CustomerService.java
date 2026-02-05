@@ -1,5 +1,7 @@
 package com.pokestore.core.service;
 
+import com.pokestore.core.domain.command.UserSearchQuery;
+import com.pokestore.core.domain.entity.Customer;
 import com.pokestore.core.domain.entity.Order;
 import com.pokestore.core.domain.exception.CustomerNotFoundException;
 import com.pokestore.core.port.in.CustomerUseCase;
@@ -23,5 +25,10 @@ public class CustomerService implements CustomerUseCase {
         customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
         return orderRepository.findByCustomerId(customerId);
+    }
+
+    @Override
+    public List<Customer> search(UserSearchQuery query) {
+        return customerRepository.search(query);
     }
 }

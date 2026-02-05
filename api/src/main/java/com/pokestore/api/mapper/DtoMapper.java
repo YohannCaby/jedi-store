@@ -1,22 +1,27 @@
 package com.pokestore.api.mapper;
 
-import com.pokestore.api.generated.model.CustomerDto;
-import com.pokestore.api.generated.model.OrderDto;
-import com.pokestore.api.generated.model.OrderLineDto;
-import com.pokestore.api.generated.model.ProductDto;
+import com.pokestore.api.generated.model.*;
+import com.pokestore.core.domain.command.UserSearchQuery;
 import com.pokestore.core.domain.entity.Customer;
 import com.pokestore.core.domain.entity.Order;
 import com.pokestore.core.domain.entity.OrderLine;
 import com.pokestore.core.domain.entity.Product;
 import org.springframework.stereotype.Component;
 
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 
 @Component
 public class DtoMapper {
+
+    public CustomersDto toCustomersDto(List<Customer> customers) {
+        CustomersDto customersDto = new CustomersDto();
+        if (customers == null) {
+            return customersDto;
+        }
+        return new CustomersDto().data(customers.stream().map(this::toCustomerDto).toList());
+    }
 
     public CustomerDto toCustomerDto(Customer customer) {
         if (customer == null) {
@@ -90,5 +95,12 @@ public class DtoMapper {
             return Collections.emptyList();
         }
         return products.stream().map(this::toProductDto).toList();
+    }
+
+    public UserSearchQuery toUserSearchQuery(String name, String email){
+        UserSearchQuery query = new UserSearchQuery();
+        query.setEmail(email);
+        query.setName(name);
+        return query;
     }
 }

@@ -100,7 +100,6 @@
                         <configuration>
                             <generatorName>spring</generatorName>
                             <library>spring-http-interface</library>
-                            <modelNameSuffix>Entity</modelNameSuffix>
                             <inputSpec>${project.build.directory}/api-spec/openapi/api.yml</inputSpec>
                             <generatorName>spring</generatorName>
                             <apiPackage>com.pokestore.api.generated.client</apiPackage>
