@@ -7,9 +7,10 @@ spring:
   ai:
     mcp:
       server:
-        protocol: STREAMABLE
+        protocol: streamable
         name: poke-store-mcp-server
         version: 1.0.0
+        type: ASYNC
     ollama:
       base-url: http://localhost:11434
       chat:
