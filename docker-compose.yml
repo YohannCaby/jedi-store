@@ -73,9 +73,22 @@ services:
       - pokestore-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.2
+    ports:
+      - "8888:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    entrypoint: [ "/opt/keycloak/bin/kc.sh","start-dev" ]
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - pokestore-network
 
 volumes:
   postgres_data:
+  keycloak_data:
 
 networks:
   pokestore-network:

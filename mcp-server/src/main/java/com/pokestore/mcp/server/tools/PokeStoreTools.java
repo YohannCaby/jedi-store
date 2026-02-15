@@ -8,8 +8,6 @@ import com.pokestore.mcp.server.model.ValidationRequest;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.context.McpAsyncRequestContext;
-import org.springaicommunity.mcp.context.StructuredElicitResult;
-import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -26,6 +24,14 @@ public class PokeStoreTools {
     OrdersApi ordersApi;
     CustomersApi customersApi;
 
+    private static final String GET_ALL_PRODUCTS = "USER_getAllProducts";
+    private static final String GET_CUSTOMER_ORDERS = "USER_getCustomerOrders";
+    private static final String CREATE_ORDER = "ADMIN_createOrder";
+    private static final String UPDATE_ORDER_STATUS = "ADMIN_updateOrderStatus";
+    private static final String GET_ORDER_DETAILS = "USER_getOrderDetails";
+    private static final String SEARCH_PRODUCTS = "USER_searchProducts";
+    private static final String SEARCH_CUSTOMERS = "USER_searchCustomer";
+
     public PokeStoreTools(ProductsApi productsApi,
                           OrdersApi ordersApi,
                           CustomersApi customerApi) {
@@ -34,9 +40,10 @@ public class PokeStoreTools {
         this.customersApi = customerApi;
     }
 
-    @Tool(description = "Get all available products in the Poke Store")
+    @McpTool(name= GET_ALL_PRODUCTS, description = "Get all available products in the Poke Store")
     public String getAllProducts() {
         List<ProductDto> products = productsApi.getAllProducts().getBody();
+        assert products != null;
         if (products.isEmpty()) {
             return "No products available.";
         }
@@ -46,11 +53,12 @@ public class PokeStoreTools {
                 .collect(Collectors.joining("\n"));
     }
 
-    @McpTool(description = "Get orders for a specific customer by their ID")
+    @McpTool(name=GET_CUSTOMER_ORDERS, description = "Get orders for a specific customer by their ID")
     public Mono<String> getCustomerOrders(
             @ToolParam(description = "The customer ID") Long customerId) {
         return Mono.fromCallable(() -> {
             List<OrderDto> orders = customersApi.getOrdersByCustomerId(customerId).getBody();
+            assert orders != null;
             if (orders.isEmpty()) {
                 return "No orders found for customer ID: " + customerId;
             }
@@ -61,7 +69,7 @@ public class PokeStoreTools {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @McpTool(description = "Create a new order for a customer")
+    @McpTool(name=CREATE_ORDER, description = "Create a new order for a customer")
     public Mono<String> createOrder(
             @ToolParam(description = "The customer ID") Long customerId,
             @ToolParam(description = "List of product IDs to order") List<Long> productIds,
@@ -84,7 +92,7 @@ public class PokeStoreTools {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @McpTool(description = "Update the status of an existing order")
+    @McpTool(name= UPDATE_ORDER_STATUS, description = "Update the status of an existing order")
     public Mono<String> updateOrderStatus(
             @ToolParam(description = "The order ID") Long orderId,
             @ToolParam(description = "New status: IN_PROGRESS, DELIVERED, or CANCELLED") String status,
@@ -114,7 +122,7 @@ public class PokeStoreTools {
         }
     }
 
-    @McpTool(description = "Get details of a specific order by ID")
+    @McpTool(name= GET_ORDER_DETAILS ,description = "Get details of a specific order by ID")
     public Mono<String> getOrderDetails(
             @ToolParam(description = "The order ID") Long orderId) {
         return Mono.fromCallable(() -> {
@@ -136,13 +144,14 @@ public class PokeStoreTools {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @McpTool(description = "Search for products by name or category")
+    @McpTool(name=SEARCH_PRODUCTS,description = "Search for products by name or category")
     public Mono<String> searchProducts(
             @ToolParam(description = "Search term for product name or category") String searchTerm) {
         return Mono.fromCallable(() -> {
             List<ProductDto> products = productsApi.getAllProducts().getBody();
             String term = searchTerm.toLowerCase();
 
+            assert products != null;
             List<ProductDto> filtered = products.stream()
                     .filter(p -> p.getName().toLowerCase().contains(term)
                             || (p.getCategory() != null && p.getCategory().toLowerCase().contains(term))
@@ -160,7 +169,7 @@ public class PokeStoreTools {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @McpTool(description = "Search customer(s) by name or email")
+    @McpTool(name=SEARCH_CUSTOMERS, description = "Search customer(s) by name or email")
     public Mono<String> searchCustomer(
             @ToolParam(description = "Search by customer email") String email,
             @ToolParam(description = "Search by customer name") String name

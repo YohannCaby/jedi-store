@@ -25,6 +25,7 @@
         <module>api</module>
         <module>mcp-server</module>
         <module>orchestrateur</module>
+        <module>shared-utils</module>
     </modules>
 
     <properties>
@@ -60,6 +61,11 @@
             <dependency>
                 <groupId>com.pokestore</groupId>
                 <artifactId>api-spec</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.pokestore</groupId>
+                <artifactId>shared-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- PostgreSQL -->
