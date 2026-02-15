@@ -19,6 +19,6 @@ public class McpClientHandler {
         logger.info("Elicitation requested: {}", request.message());
         logger.info("Requested schema: {}", request.requestedSchema());
         return Mono.just(new McpSchema.ElicitResult(McpSchema.ElicitResult.Action.ACCEPT,
-                Map.of("validated",true)));
+                Map.of("validated",request.message().toUpperCase().contains("OUI"))));
     }
 }

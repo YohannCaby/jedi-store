@@ -9,10 +9,11 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -70,12 +71,13 @@ public class ChatService {
         ToolCallback[] filterdTools = Arrays.stream(callbacks)
                 .filter(c -> {
                     logger.debug("Tested tools : {}",c.getToolDefinition().name());
-                    c.getToolDefinition().name();
-                    if(c.getToolDefinition().name().isEmpty() || !(AuthAccessLevel.isValid(c.getToolDefinition().name().split("_")[0]))){
+                    String LevelAccessName = c.getToolDefinition().name().split("_")[0];
+                    if(c.getToolDefinition().name().isEmpty() || !(AuthAccessLevel.isValid(LevelAccessName))){
+                        logger.warn("Nom du Tool invalide : {}", c.getToolDefinition().name());
                         return false;
                     }
                     AuthAccessLevel authAccessLevel = resolveUserLevel(auth);
-                    AuthAccessLevel toolAccessLevel = AuthAccessLevel.valueOf(c.getToolDefinition().name().split("_")[0]);
+                    AuthAccessLevel toolAccessLevel = AuthAccessLevel.valueOf(LevelAccessName);
                     return authAccessLevel.compareTo(toolAccessLevel) >= 0;
                 })
                 .toArray(ToolCallback[]::new);
@@ -104,8 +106,14 @@ public class ChatService {
         return AuthAccessLevel.ALL;
     }
     private Mono<Authentication> getAuthentication() {
+        Authentication anonymous = new AnonymousAuthenticationToken("anonymous", "anonymous",
+                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
         return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication);
+                .flatMap(ctx -> {
+                    Authentication auth = ctx.getAuthentication();
+                    return auth != null ? Mono.just(auth) : Mono.empty();
+                })
+                .defaultIfEmpty(anonymous);
     }
 
     private Mono<ToolCallback[]> getToolCallbacks() {

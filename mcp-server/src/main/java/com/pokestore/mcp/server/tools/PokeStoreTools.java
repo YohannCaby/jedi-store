@@ -43,8 +43,7 @@ public class PokeStoreTools {
     @McpTool(name= GET_ALL_PRODUCTS, description = "Get all available products in the Poke Store")
     public String getAllProducts() {
         List<ProductDto> products = productsApi.getAllProducts().getBody();
-        assert products != null;
-        if (products.isEmpty()) {
+        if (products == null || products.isEmpty()) {
             return "No products available.";
         }
         return products.stream()
@@ -58,8 +57,7 @@ public class PokeStoreTools {
             @ToolParam(description = "The customer ID") Long customerId) {
         return Mono.fromCallable(() -> {
             List<OrderDto> orders = customersApi.getOrdersByCustomerId(customerId).getBody();
-            assert orders != null;
-            if (orders.isEmpty()) {
+            if (orders == null || orders.isEmpty()) {
                 return "No orders found for customer ID: " + customerId;
             }
             return orders.stream()
@@ -149,9 +147,10 @@ public class PokeStoreTools {
             @ToolParam(description = "Search term for product name or category") String searchTerm) {
         return Mono.fromCallable(() -> {
             List<ProductDto> products = productsApi.getAllProducts().getBody();
+            if (products == null) {
+                return "No products found matching: " + searchTerm;
+            }
             String term = searchTerm.toLowerCase();
-
-            assert products != null;
             List<ProductDto> filtered = products.stream()
                     .filter(p -> p.getName().toLowerCase().contains(term)
                             || (p.getCategory() != null && p.getCategory().toLowerCase().contains(term))
@@ -176,8 +175,7 @@ public class PokeStoreTools {
     ) {
         return Mono.fromCallable(() -> {
             CustomersDto customers = customersApi.searchCustomers(name, email).getBody();
-            assert customers != null;
-            if (customers.getData().isEmpty()) {
+            if (customers == null || customers.getData().isEmpty()) {
                 return "No customer(s) found";
             }
             return customers.getData().stream()

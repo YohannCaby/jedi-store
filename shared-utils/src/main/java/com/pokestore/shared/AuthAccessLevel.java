@@ -2,7 +2,7 @@ package com.pokestore.shared;
 
 import java.util.Comparator;
 
-public enum AuthAccessLevel implements Comparator {
+public enum AuthAccessLevel implements Comparator<AuthAccessLevel> {
     ALL(0),
     USER(10),
     ADMIN(100),
@@ -25,12 +25,13 @@ public enum AuthAccessLevel implements Comparator {
         return false;
     }
 
-    @Override
-    public int compare(Object o1, Object o2) {
-        return ((AuthAccessLevel) o1).getLevel() - ((AuthAccessLevel) o2).getLevel();
-    }
-
     public String getName(){
         return this.name();
     }
+
+    @Override
+    public int compare(AuthAccessLevel o1, AuthAccessLevel o2) {
+        return o1.getLevel() - o2.getLevel();
+    }
+
 }
