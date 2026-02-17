@@ -1,6 +1,9 @@
 package com.pokestore.mcp.server.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+
 public class ValidationRequest {
+    @JsonPropertyDescription("Did you falidate this action?")
     boolean validated;
 
     public ValidationRequest() {

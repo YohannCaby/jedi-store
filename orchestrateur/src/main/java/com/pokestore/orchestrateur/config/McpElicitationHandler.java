@@ -10,9 +10,9 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Configuration
-public class McpClientHandler {
+public class McpElicitationHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(McpClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(McpElicitationHandler.class);
 
     @McpElicitation(clients="mcp-server")
     Mono<McpSchema.ElicitResult> handleElicitation(McpSchema.ElicitRequest request){

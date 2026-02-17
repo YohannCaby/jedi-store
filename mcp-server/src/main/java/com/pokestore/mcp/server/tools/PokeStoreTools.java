@@ -94,24 +94,23 @@ public class PokeStoreTools {
     public Mono<String> updateOrderStatus(
             @ToolParam(description = "The order ID") Long orderId,
             @ToolParam(description = "New status: IN_PROGRESS, DELIVERED, or CANCELLED") String status,
+            @ToolParam(description= "Validation action") Boolean isValidated,
             McpAsyncRequestContext requestContext) {
         try {
             UpdateStatusRequest.StatusEnum newStatus = UpdateStatusRequest.StatusEnum.valueOf(status.toUpperCase());
             UpdateStatusRequest updateStatusRequestEntity = new UpdateStatusRequest(newStatus);
-            return requestContext.elicit(
-                    e -> e.message("Valider l'action oui/non"),
-                    ValidationRequest.class
-            ).flatMap(elicitResult -> {
+            return requestContext.elicit(ValidationRequest.class)
+                    .flatMap(elicitResult -> {
                 if (McpSchema.ElicitResult.Action.ACCEPT.equals(elicitResult.action())) {
-                    boolean isValidated = elicitResult.structuredContent().isValidated();
-                    if (isValidated) {
+                    ValidationRequest response = elicitResult.structuredContent();
+                    if (response.isValidated()) {
                         return Mono.fromCallable(() -> {
                             OrderDto order = ordersApi.updateOrderStatus(orderId, updateStatusRequestEntity).getBody();
                             return String.format("Order #%d status updated to: %s", order.getId(), order.getStatus());
                         }).subscribeOn(Schedulers.boundedElastic());
                     }
                 }
-                return Mono.just("L'information n'a pas été mise à jour.");
+                return Mono.just("L'information n'a pas pu été mise à jour.");
             });
         } catch (IllegalArgumentException e) {
             return Mono.just("Error: Invalid status. Use IN_PROGRESS, DELIVERED, or CANCELLED");
