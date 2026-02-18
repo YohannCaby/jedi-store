@@ -21,10 +21,10 @@
             <artifactId>api-spec</artifactId>
         </dependency>
 
-        <!-- Spring WebFlux -->
+        <!-- Spring Web Starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <!-- Shared -->
         <dependency>
@@ -37,10 +37,15 @@
             <artifactId>spring-ai-starter-model-ollama</artifactId>
         </dependency>
 
-        <!-- Spring AI MCP Client WebFlux -->
+        <!-- Spring AI MCP Client WebMvc -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-client-webflux</artifactId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+        <!-- WebFlux pour WebClient et types réactifs (Flux SSE) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <!-- Security / OAuth2 Resource Server -->
         <dependency>

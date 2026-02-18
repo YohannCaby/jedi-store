@@ -10,10 +10,16 @@ spring:
         protocol: streamable
         name: poke-store-mcp-server
         version: 1.0.0
-        type: ASYNC
+        type: SYNC
     ollama:
       base-url: http://localhost:11434
       chat:
         model: ministral-3:3b
         options:
           temperature: 0.7
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          mcp=DEBUG:

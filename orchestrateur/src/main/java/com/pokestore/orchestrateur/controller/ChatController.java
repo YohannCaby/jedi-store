@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/chat")
@@ -39,9 +38,9 @@ public class ChatController implements ChatApi {
     @DeleteMapping("/session/{sessionId}")
     @Operation(summary = "Supprime une session de chat", description = "Efface l'historique de conversation d'une session")
     @ApiResponse(responseCode = "204", description = "Session supprimee avec succes")
-    public Mono<ResponseEntity<Void>> clearSession(
+    public ResponseEntity<Void> clearSession(
             @Parameter(description = "ID de la session a supprimer") @PathVariable String sessionId) {
-        return chatService.clearSession(sessionId)
-                .then(Mono.just(ResponseEntity.noContent().build()));
+        chatService.clearSession(sessionId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -12,14 +12,11 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,19 +37,19 @@ public class ChatService {
         this.chatClient = chatClientBuilder
                 .defaultSystem("""
                         Tu es un agent d'assistance e-commerce.
-                        
+
                         RÈGLES STRICTES :
                         - Réponds UNIQUEMENT avec les informations fournies par le client ou retournées par un outil.
                         - Si tu n'as pas l'information → dis "Je n'ai pas cette information."
                         - Si aucun outil ne peut répondre → dis "Je ne peux pas traiter cette demande."
                         - N'INVENTE JAMAIS de données (numéro, date, statut, prix, outil).
                         - Si un humain est nécessaire → dis-le et arrête-toi.
-                        
+
                         FORMAT :
                         - Réponses courtes (2-3 phrases max).
                         - Pose UNE question si une info manque.
                         - Langue = langue du client.
-                        
+
                         INTERDIT :
                         - Inventer des outils ou fonctions.
                         - Simuler des résultats d'outils.
@@ -65,9 +62,9 @@ public class ChatService {
 
     public Flux<String> chat(ChatRequest request) {
         String conversationId = request.getSessionId() != null ? request.getSessionId() : "default";
-        return Mono.zip(getAuthentication(), getToolCallbacks())
-                .flatMapMany(tuple -> streamResponse(request, conversationId, tuple.getT1(), tuple.getT2()));
-
+        Authentication auth = getAuthentication();
+        ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
+        return streamResponse(request, conversationId, auth, callbacks);
     }
 
     private ToolCallback[] filterByRoles(ToolCallback[] callbacks, Authentication auth) {
@@ -108,21 +105,16 @@ public class ChatService {
         }
         return AuthAccessLevel.ALL;
     }
-    private Mono<Authentication> getAuthentication() {
-        Authentication anonymous = new AnonymousAuthenticationToken("anonymous", "anonymous",
+
+    private Authentication getAuthentication() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            return auth;
+        }
+        return new AnonymousAuthenticationToken("anonymous", "anonymous",
                 AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-        return ReactiveSecurityContextHolder.getContext()
-                .flatMap(ctx -> {
-                    Authentication auth = ctx.getAuthentication();
-                    return auth != null ? Mono.just(auth) : Mono.empty();
-                })
-                .defaultIfEmpty(anonymous);
     }
 
-    private Mono<ToolCallback[]> getToolCallbacks() {
-        return Mono.fromCallable(toolCallbackProvider::getToolCallbacks)
-                .subscribeOn(Schedulers.boundedElastic());
-    }
     private Flux<String> streamResponse(ChatRequest request, String conversationId,
                                         Authentication auth, ToolCallback[] callbacks) {
         return chatClient.prompt()
@@ -133,7 +125,7 @@ public class ChatService {
                 .content();
     }
 
-    public Mono<Void> clearSession(String sessionId) {
-        return Mono.fromRunnable(() -> chatMemory.clear(sessionId));
+    public void clearSession(String sessionId) {
+        chatMemory.clear(sessionId);
     }
 }

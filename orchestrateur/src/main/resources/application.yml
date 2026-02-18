@@ -16,7 +16,7 @@ spring:
         model: ministral-3:3b
     mcp:
       client:
-        type: ASYNC
+        type: SYNC
         toolcallback:
           enabled: true
         streamable-http:

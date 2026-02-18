@@ -15,13 +15,6 @@
     <description>Module serveur MCP avec intégration Ollama</description>
 
     <dependencies>
-
-        <!-- Spring WebFlux for SSE -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
         <!-- Spring AI Ollama -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
@@ -31,17 +24,12 @@
         <!-- MCP Tools -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
         </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- OpenApi generator dependencies -->
