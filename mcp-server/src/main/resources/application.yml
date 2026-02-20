@@ -22,4 +22,4 @@ logging:
     org:
       springframework:
         ai:
-          mcp=DEBUG:
+          mcp: DEBUG
