@@ -27,7 +27,6 @@ public class PokeStoreTools {
     OrdersApi ordersApi;
     CustomersApi customersApi;
 
-    private static final String GET_ALL_PRODUCTS = "USER_getAllProducts";
     private static final String GET_CUSTOMER_ORDERS = "USER_getCustomerOrders";
     private static final String CREATE_ORDER = "ADMIN_createOrder";
     private static final String UPDATE_ORDER_STATUS = "ADMIN_updateOrderStatus";
@@ -120,7 +119,7 @@ public class PokeStoreTools {
     @McpTool(name= GET_ORDER_DETAILS ,description = "Get details of a specific order by ID")
     public String getOrderDetails(
             @ToolParam(description = "The order ID") Long orderId, McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
-        ctx.info(String.format("Use Tool %s", UPDATE_ORDER_STATUS));
+        ctx.info(String.format("Use Tool %s", GET_ORDER_DETAILS));
         exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
         OrderDto order = ordersApi.getOrderById(orderId).getBody();
         StringBuilder sb = new StringBuilder();

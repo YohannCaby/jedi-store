@@ -6,8 +6,9 @@ import com.pokestore.api.generated.client.ProductsApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @Configuration
@@ -17,30 +18,39 @@ public class ApiClientConfig {
     private String apiBaseUrl;
 
     @Bean
-    public WebClient pokeStoreWebClient() {
-        return WebClient.builder()
+    public RestClient pokeStoreRestClient() {
+        ClientHttpRequestInterceptor authInterceptor = (request, body, execution) -> {
+            String token = AuthTokenHolder.get();
+            if (token != null) {
+                request.getHeaders().add("Authorization", token);
+            }
+            return execution.execute(request, body);
+        };
+
+        return RestClient.builder()
                 .baseUrl(apiBaseUrl)
+                .requestInterceptor(authInterceptor)
                 .build();
     }
 
     @Bean
-    public ProductsApi productsApi(WebClient pokeStoreWebClient) {
-        return createClient(pokeStoreWebClient, ProductsApi.class);
+    public ProductsApi productsApi(RestClient pokeStoreRestClient) {
+        return createClient(pokeStoreRestClient, ProductsApi.class);
     }
 
     @Bean
-    public CustomersApi customersApi(WebClient pokeStoreWebClient) {
-        return createClient(pokeStoreWebClient, CustomersApi.class);
+    public CustomersApi customersApi(RestClient pokeStoreRestClient) {
+        return createClient(pokeStoreRestClient, CustomersApi.class);
     }
 
     @Bean
-    public OrdersApi ordersApi(WebClient pokeStoreWebClient) {
-        return createClient(pokeStoreWebClient, OrdersApi.class);
+    public OrdersApi ordersApi(RestClient pokeStoreRestClient) {
+        return createClient(pokeStoreRestClient, OrdersApi.class);
     }
 
-    private <T> T createClient(WebClient webClient, Class<T> clientClass) {
+    private <T> T createClient(RestClient restClient, Class<T> clientClass) {
         HttpServiceProxyFactory factory = HttpServiceProxyFactory
-                .builderFor(WebClientAdapter.create(webClient))
+                .builderFor(RestClientAdapter.create(restClient))
                 .build();
         return factory.createClient(clientClass);
     }

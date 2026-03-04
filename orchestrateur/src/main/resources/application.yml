@@ -9,6 +9,17 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8888/realms/pokestore
+      client:
+        registration:
+          mcp-server:
+            provider: keycloak
+            client-id: mcp-auth
+            client-secret: ULBswYmK4f6kTDFgSDalhDJSZcL4eYim
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            token-uri: http://localhost:8888/realms/pokestore/protocol/openid-connect/token
   ai:
     ollama:
       base-url: http://localhost:11434
@@ -24,3 +35,6 @@ spring:
             mcp-server:
               url: http://localhost:8081
               endpoint: /mcp
+logging:
+  level:
+    root: info
