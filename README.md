@@ -53,10 +53,7 @@ graph TD
 ## Prérequis
 
 - **Docker & Docker Compose**
-- **Ollama** installé en local avec le modèle téléchargé :
-  ```bash
-  ollama pull ministral-3:3b
-  ```
+- **NVIDIA Container Toolkit** (optionnel) — pour l'accélération GPU du service Ollama
 - **Maven 3.9+** et **Java 25** (pour le développement local uniquement)
 
 ---
@@ -247,7 +244,7 @@ Credentials PostgreSQL : `pokestore` / `pokestore` / `pokestore` (user/password/
 | `SPRING_DATASOURCE_URL` | api | `jdbc:postgresql://postgres:5432/pokestore` |
 | `SPRING_DATASOURCE_USERNAME` | api | `pokestore` |
 | `SPRING_DATASOURCE_PASSWORD` | api| `pokestore` |
-| `SPRING_AI_OLLAMA_BASE_URL` | orchestrateur | `http://host.docker.internal:11434` |
+| `SPRING_AI_OLLAMA_BASE_URL` | orchestrateur, mcp-server | `http://ollama_ministral:11434` |
 | `MCP_SERVER_URL` | orchestrateur | `http://mcp-server:8081` |
 
 ---
