@@ -13,7 +13,7 @@ import java.util.Comparator;
  *
  * <p>Hiérarchie des niveaux (ordre croissant de privilèges) :</p>
  * <pre>
- *   ALL(0) &lt; USER(10) &lt; ADMIN(100) &lt; SUPER_ADMIN(MAX)
+ *   READ_ONLY(0) &lt; USER(10) &lt; ADMIN(100) &lt; SUPER_ADMIN(MAX)
  * </pre>
  *
  * <p>Un utilisateur peut accéder à tous les outils dont le niveau est
@@ -22,7 +22,7 @@ import java.util.Comparator;
 public enum AuthAccessLevel implements Comparator<AuthAccessLevel> {
 
     /** Accès sans authentification — outils publics. */
-    ALL(0),
+    READ_ONLY(0),
 
     /** Accès utilisateur authentifié — consultation de ses propres données. */
     USER(10),

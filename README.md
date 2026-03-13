@@ -17,30 +17,23 @@ Application de gestion d'un magasin Pokémon avec architecture microservice, IA 
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Client HTTP                          │
-└──────────────┬──────────────────────────┬───────────────────┘
-               │                          │
-               ▼                          ▼
-     ┌─────────────────┐        ┌──────────────────┐
-     │  orchestrateur  │        │       api        │
-     │   :8080 (SSE)   │        │    :8082 (REST)  │
-     └────────┬────────┘        └────────┬─────────┘
-              │ MCP (HTTP)               │ JPA
-              ▼                          ▼
-     ┌─────────────────┐        ┌──────────────────┐
-     │   mcp-server    │──────► │  bdd-connector   │
-     │    :8081 (MCP)  │  JPA   │  (JPA/Flyway)    │
-     └─────────────────┘        └────────┬─────────┘
-              │                          │
-              ▼                          ▼
-         [Ollama]                  [PostgreSQL :5432]
-     (ministral-3:3b)
-              │
-              ▼
-         [Keycloak :8888]
-         (realm: pokestore)
+```mermaid
+graph TD
+    Client[Client HTTP]
+    API["api\n:8082 (REST)"]
+    Orchestrateur["orchestrateur\n:8080 (SSE)"]
+    MCP["mcp-server\n:8081 (MCP)"]
+    Ollama["Ollama\n(ministral-3:3b)"]
+    Keycloak["Keycloak :8888\n(realm: pokestore)\n Exploité sur toute la chaine"]
+    PostgreSQL[(PostgreSQL :5432)]
+
+    Client <-->|SSE| Orchestrateur
+
+    Orchestrateur -->|MCP SYNC| MCP --> Orchestrateur
+    Orchestrateur <--> |WebFlux| Ollama
+    MCP -->|REST| API --> MCP
+    API -->|JPA| PostgreSQL --> API
+
 ```
 
 ### Modules Maven (7)
@@ -76,10 +69,16 @@ Application de gestion d'un magasin Pokémon avec architecture microservice, IA 
 docker-compose up -d
 ```
 
+ou simplement des application 'infra' : ollama, keycloak, postgres
+
+```bash
+./start-infra.sh
+```
+
 Cela démarre :
-- PostgreSQL (`:5432`) — avec les migrations Flyway automatiques (100 clients, 203 produits, 1000 commandes)
-- Keycloak (`:8888`) — realm `pokestore` à configurer (voir section Sécurité)
-- API REST (`:8082`)
+- PostgreSQL (`:5432`)
+- Keycloak (`:8888`) — realm `pokestore` à configurer (fichier de configuration sous keycloak/realm-pokestore.json)
+- API REST (`:8082`) — avec les migrations Flyway automatiques
 - MCP Server (`:8081`)
 - Orchestrateur (`:8080`)
 
@@ -101,6 +100,12 @@ java -jar api/target/api-1.0.0-SNAPSHOT.jar
 java -jar mcp-server/target/mcp-server-1.0.0-SNAPSHOT.jar
 java -jar orchestrateur/target/orchestrateur-1.0.0-SNAPSHOT.jar
 ```
+### 4. Premier démarrage de l'instance Keycloak
+
+La configuration défini dans le dépôt apporte un real, 2 clients et des roles. Cependant plusieurs points restent à configurer:
+ - créer un utilisateur 'user', lui définir un mot de passe et lui attribuer le role USER
+ - créer un utilisateur 'admin', lui définir un mot de passe et lui attribuer le role ADMIN
+ - Récupéré le secret du client id mcp-auth et le renseigner dans le fichier src/main/resources/application.yml sous spring.security.oauth2.client.registration.mcp-server.client-secret
 
 ---
 
@@ -175,7 +180,7 @@ Le MCP Server expose 6 outils utilisés par l'orchestrateur. L'accès est filtr�
 | `USER_searchProducts` | USER | Recherche de produits par nom/catégorie |
 | `USER_searchCustomer` | USER | Recherche de clients par nom ou email |
 | `ADMIN_createOrder` | ADMIN | Créer une commande |
-| `ADMIN_updateOrderStatus` | ADMIN | Modifier le statut d'une commande (avec validation) |
+| `ADMIN_updateOrderStatus` | ADMIN | Modifier le statut d'une commande |
 
 La convention de nommage `ROLE_nomOutil` permet au filtrage automatique dans l'orchestrateur.
 
@@ -192,17 +197,21 @@ La convention de nommage `ROLE_nomOutil` permet au filtrage automatique dans l'o
 ### Niveaux d'accès
 
 ```
-ALL < USER < ADMIN < SUPER_ADMIN
+READ_ONLY < USER < ADMIN < SUPER_ADMIN
 ```
 
 Les outils MCP sont préfixés par leur niveau (`USER_`, `ADMIN_`). L'orchestrateur filtre les outils disponibles selon le rôle JWT du token Keycloak (`realm_access.roles`).
 
-Un utilisateur sans token JWT (anonyme) a accès au niveau `ALL` uniquement.
+Un utilisateur sans token JWT (anonyme) a accès au niveau `READ_ONLY` uniquement.
 
 ### Propagation JWT
 
-```
-Client Front (JWT) → orchestrateur (JWT) - mcp-client (JWT via client_credentials) → mcp-server (JWT) → api (JWT)
+```mermaid
+graph TD
+    ClientFront["Client Front JWT<br/>login/pwd"]
+    Orchestrateur["Orchestrateur JWT<br/>issuer validation<br/><br/>MCP Client<br/>client_credentials"]
+
+    ClientFront --> Orchestrateur --> mcp-server[mcp-server JWT<br/> issuer validation] --> api[api JWT<br/> issuer validation]
 ```
 
 Le MCP Client utilise un client OAuth2 `mcp-auth` (client_credentials) pour appeler le MCP Server et ce dernier réexploite le même token pour appeler l'API.
@@ -234,11 +243,11 @@ Credentials PostgreSQL : `pokestore` / `pokestore` / `pokestore` (user/password/
 ### Variables d'environnement Docker
 
 | Variable | Service | Valeur par défaut |
-|----------|---------|-------------------|
-| `SPRING_DATASOURCE_URL` | api, mcp-server | `jdbc:postgresql://postgres:5432/pokestore` |
-| `SPRING_DATASOURCE_USERNAME` | api, mcp-server | `pokestore` |
-| `SPRING_DATASOURCE_PASSWORD` | api, mcp-server | `pokestore` |
-| `SPRING_AI_OLLAMA_BASE_URL` | mcp-server, orchestrateur | `http://host.docker.internal:11434` |
+|----------|--------|-------------------|
+| `SPRING_DATASOURCE_URL` | api | `jdbc:postgresql://postgres:5432/pokestore` |
+| `SPRING_DATASOURCE_USERNAME` | api | `pokestore` |
+| `SPRING_DATASOURCE_PASSWORD` | api| `pokestore` |
+| `SPRING_AI_OLLAMA_BASE_URL` | orchestrateur | `http://host.docker.internal:11434` |
 | `MCP_SERVER_URL` | orchestrateur | `http://mcp-server:8081` |
 
 ---

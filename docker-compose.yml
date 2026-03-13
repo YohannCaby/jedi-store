@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -48,14 +46,13 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokestore
       SPRING_DATASOURCE_USERNAME: pokestore
       SPRING_DATASOURCE_PASSWORD: pokestore
-      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
     depends_on:
       postgres:
         condition: service_healthy
+      llm:
+        condition: service_started
     networks:
       - pokestore-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   orchestrateur:
     build:
@@ -66,13 +63,30 @@ services:
       - "8080:8080"
     environment:
       MCP_SERVER_URL: http://mcp-server:8081
-      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      SPRING_AI_OLLAMA_BASE_URL: http://ollama_ministral:11434
     depends_on:
       - mcp-server
+      - llm
     networks:
       - pokestore-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  llm:
+    image: ollama/ollama
+    container_name: ollama_ministral
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull ministral-3:3b && wait"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - pokestore-network
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
     ports:
@@ -80,15 +94,17 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    entrypoint: [ "/opt/keycloak/bin/kc.sh","start-dev" ]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
     volumes:
       - keycloak_data:/opt/keycloak/data
+      - ./keycloak/realm-pokestore.json:/opt/keycloak/data/import/realm-pokestore.json
     networks:
       - pokestore-network
 
 volumes:
   postgres_data:
   keycloak_data:
+  ollama_data:
 
 networks:
   pokestore-network:

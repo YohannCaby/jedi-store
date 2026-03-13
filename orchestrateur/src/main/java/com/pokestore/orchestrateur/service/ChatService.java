@@ -126,19 +126,19 @@ public class ChatService {
      * <p>
      * Extrait les rôles depuis le claim {@code realm_access.roles} du token.
      * Si plusieurs rôles correspondent à un {@link AuthAccessLevel}, le plus
-     * élevé est retenu. Les utilisateurs sans JWT valide reçoivent le niveau {@code ALL}.
+     * élevé est retenu. Les utilisateurs sans JWT valide reçoivent le niveau {@code READ_ONLY}.
      * </p>
      *
      * @param auth authentification Spring Security (doit être un {@link JwtAuthenticationToken})
-     * @return niveau d'accès résolu, {@link AuthAccessLevel#ALL} par défaut
+     * @return niveau d'accès résolu, {@link AuthAccessLevel#READ_ONLY} par défaut
      */
     private AuthAccessLevel resolveUserLevel(Authentication auth) {
         if (!(auth instanceof JwtAuthenticationToken jwtAuth)) {
-            return AuthAccessLevel.ALL;
+            return AuthAccessLevel.READ_ONLY;
         }
         Jwt jwt = jwtAuth.getToken();
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-        if (realmAccess == null) return AuthAccessLevel.ALL;
+        if (realmAccess == null) return AuthAccessLevel.READ_ONLY;
 
         Object roles = realmAccess.get("roles");
         if (roles instanceof List<?> roleList) {
@@ -150,9 +150,9 @@ public class ChatService {
                     .map(AuthAccessLevel::valueOf)
                     .sorted()
                     .findFirst()
-                    .orElse(AuthAccessLevel.ALL);
+                    .orElse(AuthAccessLevel.READ_ONLY);
         }
-        return AuthAccessLevel.ALL;
+        return AuthAccessLevel.READ_ONLY;
     }
 
     /**
