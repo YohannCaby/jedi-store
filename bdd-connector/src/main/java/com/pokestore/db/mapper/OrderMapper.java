@@ -10,6 +10,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
+/**
+ * Mapper responsable de la conversion entre l'entité domaine {@link com.pokestore.core.domain.entity.Order}
+ * et l'entité JPA {@link com.pokestore.db.entity.OrderEntity}.
+ * <p>
+ * Dépend de {@link CustomerMapper} et {@link ProductMapper} pour la conversion
+ * des objets imbriqués. Gère également la conversion bidirectionnelle du statut
+ * ({@code OrderStatus} ↔ {@code OrderStatusEntity}).
+ * </p>
+ */
 @Component
 public class OrderMapper {
 

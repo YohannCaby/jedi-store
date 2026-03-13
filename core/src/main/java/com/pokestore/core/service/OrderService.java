@@ -16,6 +16,14 @@ import com.pokestore.core.port.out.ProductRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implémentation du use case {@link OrderUseCase}.
+ * <p>
+ * Orchestre la création et la mise à jour des commandes en coordonnant
+ * les repositories clients, produits et commandes. Classe domaine pure,
+ * sans dépendance vers Spring ou JPA.
+ * </p>
+ */
 public class OrderService implements OrderUseCase {
 
     private final OrderRepositoryPort orderRepository;
@@ -45,8 +53,10 @@ public class OrderService implements OrderUseCase {
             OrderLine line = new OrderLine();
             line.setProduct(product);
             line.setQuantity(request.quantity());
+            // Snapshot du prix catalogue : les modifications futures du prix
+            // d'un produit n'affectent pas les commandes déjà passées.
             line.setUnitPrice(product.getPrice());
-            order.addLine(line);
+            order.addLine(line); // addLine recalcule le totalAmount automatiquement
         }
 
         return orderRepository.save(order);

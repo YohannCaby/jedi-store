@@ -16,6 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Adapter sortant implémentant le port {@link OrderRepositoryPort}.
+ * <p>
+ * La méthode {@code save} gère l'upsert manuellement : si la commande a déjà
+ * un identifiant, l'entité JPA existante est rechargée pour bénéficier du contexte
+ * de persistance Hibernate (éviter les doublons et les conflits d'état).
+ * </p>
+ * <p>
+ * Les lignes de commande sont entièrement reconstruites à chaque sauvegarde
+ * (clear + rebuild), car la collection est mappée avec {@code orphanRemoval = true}.
+ * </p>
+ */
 @Component
 public class OrderRepositoryAdapter implements OrderRepositoryPort {
 
@@ -56,6 +68,8 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
     public Order save(Order order) {
         OrderEntity entity;
 
+        // Upsert : on recharge l'entité existante pour rester dans le même contexte JPA.
+        // Cela permet à Hibernate de détecter les changements via dirty checking.
         if (order.getId() != null) {
             entity = orderJpaRepository.findById(order.getId())
                     .orElseGet(OrderEntity::new);
@@ -67,16 +81,20 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         entity.setTotalAmount(order.getTotalAmount());
 
         if (order.getStatus() != null) {
+            // Conversion du statut domaine → statut JPA (même nom, enums distincts)
             entity.setStatus(OrderStatusEntity.valueOf(order.getStatus().name()));
         }
 
         if (order.getCustomer() != null && order.getCustomer().getId() != null) {
+            // On charge l'entité customer managée pour que JPA puisse gérer la FK correctement
             CustomerEntity customerEntity = customerJpaRepository
                     .findById(order.getCustomer().getId())
                     .orElseThrow();
             entity.setCustomer(customerEntity);
         }
 
+        // Reconstruction complète des lignes : orphanRemoval = true supprime automatiquement
+        // les anciennes lignes non présentes dans la nouvelle collection
         entity.getLines().clear();
         if (order.getLines() != null) {
             for (var line : order.getLines()) {
@@ -91,7 +109,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
                     lineEntity.setProduct(productEntity);
                 }
 
-                entity.addLine(lineEntity);
+                entity.addLine(lineEntity); // maintient la FK order_id sur la ligne
             }
         }
 

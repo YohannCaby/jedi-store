@@ -4,6 +4,20 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entité JPA mappée sur la table {@code customers}.
+ * <p>
+ * Classe technique propre au module {@code bdd-connector}.
+ * N'est jamais exposée en dehors de ce module : la conversion vers
+ * l'entité domaine {@link com.pokestore.core.domain.entity.Customer}
+ * est assurée par {@code CustomerMapper}.
+ * </p>
+ * <p>
+ * Les commandes sont chargées en {@code LAZY} pour éviter de ramener
+ * l'intégralité du graph en mémoire lors des simples lookups par ID.
+ * Utiliser {@code CustomerJpaRepository#findByIdWithOrders} pour un chargement eager.
+ * </p>
+ */
 @Entity
 @Table(name = "customers")
 public class CustomerEntity {

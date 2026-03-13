@@ -10,6 +10,14 @@ import com.pokestore.core.port.out.OrderRepositoryPort;
 
 import java.util.List;
 
+/**
+ * Implémentation du use case {@link CustomerUseCase}.
+ * <p>
+ * Classe de service domaine : aucune dépendance vers Spring ou JPA.
+ * Les dépendances sont injectées via le constructeur et correspondent
+ * aux ports sortants du domaine.
+ * </p>
+ */
 public class CustomerService implements CustomerUseCase {
 
     private final CustomerRepositoryPort customerRepository;
@@ -22,6 +30,7 @@ public class CustomerService implements CustomerUseCase {
 
     @Override
     public List<Order> getOrdersByCustomerId(Long customerId) {
+        // Vérifie l'existence du client avant de récupérer ses commandes
         customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
         return orderRepository.findByCustomerId(customerId);

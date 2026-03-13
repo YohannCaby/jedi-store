@@ -4,6 +4,10 @@ import com.pokestore.core.domain.entity.Product;
 import com.pokestore.db.entity.ProductEntity;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper responsable de la conversion entre l'entité domaine {@link com.pokestore.core.domain.entity.Product}
+ * et l'entité JPA {@link com.pokestore.db.entity.ProductEntity}.
+ */
 @Component
 public class ProductMapper {
 

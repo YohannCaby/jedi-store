@@ -20,6 +20,28 @@ import reactor.core.scheduler.Schedulers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Outils MCP exposés par le serveur au LLM via le protocole MCP (Streamable HTTP).
+ * <p>
+ * Chaque méthode annotée {@code @McpTool} devient un outil invocable par le LLM
+ * (via l'orchestrateur). Le nom de l'outil suit la convention {@code NIVEAU_action}
+ * qui permet à l'orchestrateur de filtrer les outils selon le rôle de l'utilisateur.
+ * </p>
+ *
+ * <p>Outils disponibles et niveaux d'accès requis :</p>
+ * <ul>
+ *   <li>{@code USER_getCustomerOrders}  — liste les commandes d'un client</li>
+ *   <li>{@code USER_getOrderDetails}    — détail complet d'une commande</li>
+ *   <li>{@code USER_searchProducts}     — recherche dans le catalogue</li>
+ *   <li>{@code USER_searchCustomer}     — recherche de clients par nom/email</li>
+ *   <li>{@code ADMIN_createOrder}       — création d'une commande (niveau ADMIN)</li>
+ *   <li>{@code ADMIN_updateOrderStatus} — mise à jour du statut avec élicitation (niveau ADMIN)</li>
+ * </ul>
+ *
+ * <p>Les outils n'accèdent pas directement à la base de données : ils passent
+ * par les clients HTTP générés depuis l'OpenAPI spec du module {@code api}
+ * ({@link ProductsApi}, {@link OrdersApi}, {@link CustomersApi}).</p>
+ */
 @Service
 public class PokeStoreTools {
 
@@ -84,6 +106,21 @@ public class PokeStoreTools {
                 order.getId(), order.getTotalAmount(), order.getStatus());
     }
 
+    /**
+     * Met à jour le statut d'une commande avec une étape de validation humaine (élicitation MCP).
+     * <p>
+     * L'élicitation ({@code ctx.elicit}) envoie une requête de confirmation au client MCP
+     * (l'orchestrateur) avant d'effectuer la modification. Si l'utilisateur refuse ou
+     * ne valide pas, la mise à jour est annulée.
+     * </p>
+     *
+     * @param orderId     identifiant de la commande à modifier
+     * @param status      nouveau statut : {@code IN_PROGRESS}, {@code DELIVERED} ou {@code CANCELLED}
+     * @param isValidated paramètre de validation (géré par l'élicitation, pas par le LLM)
+     * @param ctx         contexte de la requête MCP (logging, élicitation)
+     * @param exchange    échange MCP courant (notifications de progression)
+     * @return message décrivant le résultat de l'opération
+     */
     @McpTool(name= UPDATE_ORDER_STATUS, description = "Update the status of an existing order")
     public String updateOrderStatus(
             @ToolParam(description = "The order ID") Long orderId,
@@ -95,6 +132,9 @@ public class PokeStoreTools {
         try {
             UpdateStatusRequest.StatusEnum newStatus = UpdateStatusRequest.StatusEnum.valueOf(status.toUpperCase());
             UpdateStatusRequest updateStatusRequestEntity = new UpdateStatusRequest(newStatus);
+
+            // Élicitation : demande une confirmation explicite à l'utilisateur via le client MCP
+            // avant d'effectuer la modification en base
             StructuredElicitResult<ValidationRequest> elicitResult = ctx.elicit(ValidationRequest.class);
                 if (McpSchema.ElicitResult.Action.ACCEPT.equals(elicitResult.action())) {
                     ValidationRequest response = elicitResult.structuredContent();

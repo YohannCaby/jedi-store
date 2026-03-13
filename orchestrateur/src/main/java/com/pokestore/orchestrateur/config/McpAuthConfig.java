@@ -12,9 +12,24 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
+/**
+ * Configuration OAuth2 pour l'authentification des appels MCP sortants.
+ * <p>
+ * L'orchestrateur doit s'authentifier auprès du MCP Server (qui est protégé par
+ * OAuth2 resource server). Cette configuration utilise le flux
+ * {@code client_credentials} : l'orchestrateur obtient un token au nom de
+ * l'application (pas au nom de l'utilisateur) avec le client {@code mcp-auth}
+ * enregistré dans Keycloak.
+ * </p>
+ * <p>
+ * Le token est automatiquement mis en cache et renouvelé par Spring Security
+ * avant expiration.
+ * </p>
+ */
 @Configuration
 public class McpAuthConfig {
 
+    /** Identifiant de l'enregistrement OAuth2 client vers le MCP Server (défini dans application.yml). */
     @Value("${pokestore.mcp.oauth2-registration-id:mcp-server}")
     private String mcpRegistrationId;
 

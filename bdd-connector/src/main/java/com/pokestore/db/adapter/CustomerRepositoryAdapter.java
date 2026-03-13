@@ -14,6 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Adapter sortant implémentant le port {@link CustomerRepositoryPort}.
+ * <p>
+ * Fait le pont entre le domaine et la couche JPA : convertit les entités domaine
+ * en entités JPA (et inversement) via {@link CustomerMapper}, et délègue
+ * les opérations à {@link CustomerJpaRepository}.
+ * </p>
+ * <p>
+ * La méthode {@code search} construit des {@code Specification} JPA dynamiquement :
+ * seuls les critères renseignés dans le {@code UserSearchQuery} sont ajoutés
+ * à la clause WHERE.
+ * </p>
+ */
 @Component
 public class CustomerRepositoryAdapter implements CustomerRepositoryPort {
 
@@ -45,12 +58,18 @@ public class CustomerRepositoryAdapter implements CustomerRepositoryPort {
     @Override
     public List<Customer> search(UserSearchQuery userSearchQueryuery) {
         List<Specification<CustomerEntity>> specs = new ArrayList<>();
+
+        // Filtre sur le nom : correspondance partielle insensible à la casse (LIKE %name%)
         if (StringUtils.hasText(userSearchQueryuery.getName())){
             specs.add(((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("name"),"%"+userSearchQueryuery.getName()+"%")));
         }
+
+        // Filtre sur l'email : correspondance exacte (= email)
         if (StringUtils.hasText(userSearchQueryuery.getEmail())){
             specs.add(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("email"),userSearchQueryuery.getEmail())));
         }
+
+        // Specification.allOf retourne une Specification neutre (sans WHERE) si la liste est vide
         List<CustomerEntity> customers = jpaRepository.findAll(Specification.allOf(specs));
 
         return mapper.toDomain(customers);

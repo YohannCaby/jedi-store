@@ -7,6 +7,15 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Mapper responsable de la conversion entre l'entité domaine {@link com.pokestore.core.domain.entity.Customer}
+ * et l'entité JPA {@link com.pokestore.db.entity.CustomerEntity}.
+ * <p>
+ * Note : la conversion {@code toDomain} ne charge pas les commandes du client
+ * (la liste reste vide). Pour charger les commandes, utiliser
+ * {@code CustomerJpaRepository#findByIdWithOrders}.
+ * </p>
+ */
 @Component
 public class CustomerMapper {
 

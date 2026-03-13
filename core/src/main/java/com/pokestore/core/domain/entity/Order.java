@@ -7,6 +7,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entité domaine représentant une commande client.
+ * <p>
+ * Une commande agrège plusieurs {@link OrderLine} et maintient son montant
+ * total en cohérence via {@link #recalculateTotalAmount()}. Le statut initial
+ * est {@link com.pokestore.core.domain.valueobject.OrderStatus#IN_PROGRESS}
+ * et la date de création est fixée à l'instant de construction.
+ * </p>
+ */
 public class Order {
     private Long id;
     private LocalDateTime orderDate;
@@ -15,6 +24,10 @@ public class Order {
     private BigDecimal totalAmount;
     private List<OrderLine> lines = new ArrayList<>();
 
+    /**
+     * Constructeur par défaut pour la création d'une nouvelle commande.
+     * Initialise la date à maintenant et le statut à {@link OrderStatus#IN_PROGRESS}.
+     */
     public Order() {
         this.orderDate = LocalDateTime.now();
         this.status = OrderStatus.IN_PROGRESS;
@@ -75,12 +88,22 @@ public class Order {
         this.lines = lines;
     }
 
+    /**
+     * Ajoute une ligne à la commande, maintient la relation bidirectionnelle,
+     * puis recalcule le montant total.
+     *
+     * @param line la ligne de commande à ajouter
+     */
     public void addLine(OrderLine line) {
         this.lines.add(line);
         line.setOrder(this);
         recalculateTotalAmount();
     }
 
+    /**
+     * Recalcule le montant total en sommant le sous-total de chaque ligne.
+     * Doit être appelé après toute modification des lignes.
+     */
     public void recalculateTotalAmount() {
         this.totalAmount = lines.stream()
                 .map(OrderLine::getLineTotal)

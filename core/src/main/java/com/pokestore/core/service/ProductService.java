@@ -7,6 +7,10 @@ import com.pokestore.core.port.out.ProductRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implémentation du use case {@link ProductUseCase}.
+ * Classe domaine pure sans dépendance vers Spring ou JPA.
+ */
 public class ProductService implements ProductUseCase {
 
     private final ProductRepositoryPort productRepository;

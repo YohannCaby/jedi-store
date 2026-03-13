@@ -2,6 +2,15 @@ package com.pokestore.core.domain.entity;
 
 import java.math.BigDecimal;
 
+/**
+ * Entité domaine représentant un produit du catalogue Pokémon.
+ * <p>
+ * Les produits couvrent différentes catégories : Pokéballs, médicaments,
+ * vitamines, CT, peluches, objets de collection, nourriture, etc.
+ * Le prix est stocké en {@link BigDecimal} pour éviter les erreurs
+ * d'arrondi sur les calculs monétaires.
+ * </p>
+ */
 public class Product {
     private Long id;
     private String name;

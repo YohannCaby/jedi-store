@@ -6,6 +6,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entité JPA mappée sur la table {@code orders}.
+ * <p>
+ * Les lignes de commande ({@code OrderLineEntity}) sont liées par
+ * {@code CascadeType.ALL} + {@code orphanRemoval = true} : toute modification
+ * de la collection {@code lines} est automatiquement propagée en base.
+ * </p>
+ * <p>
+ * Le statut est stocké en chaîne ({@code EnumType.STRING}) via {@code OrderStatusEntity}
+ * pour garantir la lisibilité des données en base et la robustesse aux réorganisations
+ * de l'enum.
+ * </p>
+ */
 @Entity
 @Table(name = "orders")
 public class OrderEntity {
@@ -82,6 +95,12 @@ public class OrderEntity {
         this.lines = lines;
     }
 
+    /**
+     * Ajoute une ligne à la commande et maintient la relation bidirectionnelle.
+     * La ligne reçoit une référence vers cette commande (nécessaire pour la FK en base).
+     *
+     * @param line la ligne de commande à associer
+     */
     public void addLine(OrderLineEntity line) {
         lines.add(line);
         line.setOrder(this);

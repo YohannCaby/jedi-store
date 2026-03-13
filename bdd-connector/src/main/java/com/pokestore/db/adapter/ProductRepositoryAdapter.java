@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Adapter sortant implémentant le port {@link ProductRepositoryPort}.
+ * Délègue à {@link ProductJpaRepository} et convertit via {@link ProductMapper}.
+ */
 @Component
 public class ProductRepositoryAdapter implements ProductRepositoryPort {
 
