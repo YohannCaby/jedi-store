@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +57,10 @@ public class JediStoreTools {
     private static final String SEARCH_PRODUCTS = "USER_searchProducts";
     private static final String SEARCH_CUSTOMERS = "USER_searchCustomer";
 
+    private String generateToken() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+    }
+
     public JediStoreTools(ProductsApi productsApi,
                           OrdersApi ordersApi,
                           CustomersApi customerApi) {
@@ -66,14 +71,15 @@ public class JediStoreTools {
 
     @McpTool(name=GET_CUSTOMER_ORDERS, description = "Get orders for a specific customer by their ID")
     public String getCustomerOrders(@ToolParam(description = "The customer ID") Long customerId, McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", GET_CUSTOMER_ORDERS));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,GET_CUSTOMER_ORDERS + " - Init"));
         List<OrderDto> orders = customersApi.getOrdersByCustomerId(customerId).getBody();
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,GET_CUSTOMER_ORDERS + " - End"));
         if (orders == null || orders.isEmpty()) {
             return "No orders found for customer ID: " + customerId;
         }
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,GET_CUSTOMER_ORDERS + " - End"));
         return orders.stream()
                 .map(o -> String.format("Order #%d - Date: %s - Status: %s - Total: %.2f$",
                         o.getId(), o.getOrderDate(), o.getStatus(), o.getTotalAmount()))
@@ -85,8 +91,9 @@ public class JediStoreTools {
             @ToolParam(description = "The customer ID") Long customerId,
             @ToolParam(description = "List of product IDs to order") List<Long> productIds,
             @ToolParam(description = "Quantities for each product (in same order as productIds)") List<Integer> quantities, McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", CREATE_ORDER));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,CREATE_ORDER + " - Init"));
         if (productIds.size() != quantities.size()) {
             return "Error: Number of product IDs must match number of quantities";
         }
@@ -99,9 +106,9 @@ public class JediStoreTools {
         CreateOrderRequest createOrderRequest = new CreateOrderRequest(customerId, lines);
 
         OrderDto order = ordersApi.createOrder(createOrderRequest).getBody();
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,CREATE_ORDER + " - Init"));
         assert order != null;
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,CREATE_ORDER + " - End"));
         return String.format("Order created successfully! Order ID: %d, Total: %.2f$, Status: %s",
                 order.getId(), order.getTotalAmount(), order.getStatus());
     }
@@ -127,8 +134,9 @@ public class JediStoreTools {
             @ToolParam(description = "New status: IN_PROGRESS, DELIVERED, or CANCELLED") String status,
             @ToolParam(description= "Validation action") Boolean isValidated,
             McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", UPDATE_ORDER_STATUS));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,UPDATE_ORDER_STATUS + " - Init"));
         try {
             UpdateStatusRequest.StatusEnum newStatus = UpdateStatusRequest.StatusEnum.valueOf(status.toUpperCase());
             UpdateStatusRequest updateStatusRequestEntity = new UpdateStatusRequest(newStatus);
@@ -137,13 +145,13 @@ public class JediStoreTools {
             sb.append(String.format("Order #%d\n", order.getId()));
             sb.append(String.format("Date: %s\n", order.getOrderDate()));
             sb.append(String.format("Status: %s\n", order.getStatus()));
-            exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,UPDATE_ORDER_STATUS + " - End"));
             return String.format("L'information été mise à jour: %s", sb);
         } catch (IllegalArgumentException e) {
-            exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"Error Enum"));
+            exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,UPDATE_ORDER_STATUS + " - Error Enum"));
             return "Error: Invalid status. Use IN_PROGRESS, DELIVERED, or CANCELLED";
         } catch (Exception e) {
-            exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"Error"));
+            exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,UPDATE_ORDER_STATUS + " - Error"));
             return "Error updating order: " + e.getMessage();
         }
     }
@@ -151,8 +159,9 @@ public class JediStoreTools {
     @McpTool(name= GET_ORDER_DETAILS ,description = "Get details of a specific order by ID")
     public String getOrderDetails(
             @ToolParam(description = "The order ID") Long orderId, McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", GET_ORDER_DETAILS));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,GET_ORDER_DETAILS + " - Init"));
         OrderDto order = ordersApi.getOrderById(orderId).getBody();
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Order #%d\n", order.getId()));
@@ -167,15 +176,16 @@ public class JediStoreTools {
                         line.getUnitPrice(),
                         line.getLineTotal())));
         sb.append(String.format("Total: %.2f$", order.getTotalAmount()));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,GET_ORDER_DETAILS + " - End"));
         return sb.toString();
     }
 
     @McpTool(name=SEARCH_PRODUCTS,description = "Search for products by name or category")
     public String searchProducts(
             @ToolParam(description = "Search term for product name or category") String searchTerm, McpSyncRequestContext ctx, McpSyncServerExchange exchange) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", SEARCH_PRODUCTS));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,SEARCH_PRODUCTS + " - Init"));
         List<ProductDto> products = productsApi.getAllProducts().getBody();
         if (products == null) {
             return "No products found matching: " + searchTerm;
@@ -190,7 +200,7 @@ public class JediStoreTools {
         if (filtered.isEmpty()) {
             return "No products found matching: " + searchTerm;
         }
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,SEARCH_PRODUCTS + " - End"));
         return filtered.stream()
                 .map(p -> String.format("- %s (ID: %d) - %.2f$ - %s",
                         p.getName(), p.getId(), p.getPrice(), p.getCategory()))
@@ -202,13 +212,14 @@ public class JediStoreTools {
             @ToolParam(description = "Search by customer email") String email,
             @ToolParam(description = "Search by customer name") String name, McpSyncRequestContext ctx, McpSyncServerExchange exchange
     ) {
+        String token = generateToken();
         ctx.info(String.format("Use Tool %s", SEARCH_CUSTOMERS));
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",0,100.0,"Init"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,0,100.0,SEARCH_CUSTOMERS + " - Init"));
         CustomersDto customers = customersApi.searchCustomers(name, email).getBody();
         if (customers == null || customers.getData().isEmpty()) {
             return "No customer(s) found";
         }
-        exchange.progressNotification(new McpSchema.ProgressNotification("poc",100.0,100.0,"End"));
+        exchange.progressNotification(new McpSchema.ProgressNotification(token,100.0,100.0,SEARCH_CUSTOMERS + " - End"));
         return customers.getData().stream()
                 .map(CustomerDto::toString)
                 .collect(Collectors.joining("\n"));

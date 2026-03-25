@@ -30,6 +30,6 @@ public class McpProgressHandler {
      */
     @McpProgress(clients="mcp-server")
     public void handleProgressNotification(McpSchema.ProgressNotification progress){
-        logger.info("Progression [token:{}] : message : {}, progression :{}%",progress.progressToken().toString(),progress.message(),progress.progress());
+        logger.info("Progression [id:{}] : message : {}, progression :{}%",progress.progressToken().toString(),progress.message(),progress.progress());
     }
 }
