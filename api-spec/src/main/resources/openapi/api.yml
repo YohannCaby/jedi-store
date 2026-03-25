@@ -1,18 +1,18 @@
 openapi: 3.0.3
 info:
-  title: PokeStore API
-  description: API REST pour la gestion de la boutique Pokemon
+  title: JediStore API
+  description: API REST pour la gestion de la boutique Star Wars
   version: 1.0.0
   contact:
     name: Groupe Tech
-    email: contact@pokestore.com
+    email: contact@jedistore.com
 servers:
   - url: /
     description: Serveur par defaut
 
 tags:
   - name: Products
-    description: Gestion des produits Pokemon
+    description: Gestion des produits Star Wars
   - name: Customers
     description: Gestion des clients
   - name: Orders

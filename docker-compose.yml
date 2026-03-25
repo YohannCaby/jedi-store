@@ -1,19 +1,19 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: pokestore-postgres
+    container_name: jedistore-postgres
     environment:
-      POSTGRES_DB: pokestore
-      POSTGRES_USER: pokestore
-      POSTGRES_PASSWORD: pokestore
+      POSTGRES_DB: jedistore
+      POSTGRES_USER: jedistore
+      POSTGRES_PASSWORD: jedistore
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - pokestore-network
+      - jedistore-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pokestore -d pokestore"]
+      test: ["CMD-SHELL", "pg_isready -U jedistore -d jedistore"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,43 +22,43 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: pokestore-api
+    container_name: jedistore-api
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokestore
-      SPRING_DATASOURCE_USERNAME: pokestore
-      SPRING_DATASOURCE_PASSWORD: pokestore
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jedistore
+      SPRING_DATASOURCE_USERNAME: jedistore
+      SPRING_DATASOURCE_PASSWORD: jedistore
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - pokestore-network
+      - jedistore-network
 
   mcp-server:
     build:
       context: ./mcp-server
       dockerfile: Dockerfile
-    container_name: pokestore-mcp-server
+    container_name: jedistore-mcp-server
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokestore
-      SPRING_DATASOURCE_USERNAME: pokestore
-      SPRING_DATASOURCE_PASSWORD: pokestore
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jedistore
+      SPRING_DATASOURCE_USERNAME: jedistore
+      SPRING_DATASOURCE_PASSWORD: jedistore
     depends_on:
       postgres:
         condition: service_healthy
       llm:
         condition: service_started
     networks:
-      - pokestore-network
+      - jedistore-network
 
   orchestrateur:
     build:
       context: ./orchestrateur
       dockerfile: Dockerfile
-    container_name: pokestore-orchestrateur
+    container_name: jedistore-orchestrateur
     ports:
       - "8080:8080"
     environment:
@@ -68,7 +68,7 @@ services:
       - mcp-server
       - llm
     networks:
-      - pokestore-network
+      - jedistore-network
   llm:
     image: ollama/ollama
     container_name: ollama_ministral
@@ -85,7 +85,7 @@ services:
               count: all
               capabilities: [gpu]
     networks:
-      - pokestore-network
+      - jedistore-network
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
@@ -94,12 +94,13 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
+    #entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--verbose"]
     volumes:
       - keycloak_data:/opt/keycloak/data
-      - ./keycloak/realm-pokestore.json:/opt/keycloak/data/import/realm-pokestore.json
+      - ./keycloak/realm-coruscant.json:/opt/keycloak/data/import/realm-coruscant.json
     networks:
-      - pokestore-network
+      - jedistore-network
 
 volumes:
   postgres_data:
@@ -107,5 +108,5 @@ volumes:
   ollama_data:
 
 networks:
-  pokestore-network:
+  jedistore-network:
     driver: bridge

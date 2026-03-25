@@ -3,23 +3,23 @@ server:
 
 spring:
   application:
-    name: poke-store-orchestrateur
+    name: jedi-store-orchestrateur
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/realms/pokestore
+          issuer-uri: http://localhost:8888/realms/coruscant
       client:
         registration:
           mcp-server:
             provider: keycloak
             client-id: mcp-auth
-            client-secret: JdbJTLKzr2zOPkh4ad0s6Pdi5LsHfoLT
+            client-secret: A6UQC8t7Oap0tedgqNviWZvdVo3h1loQ
             authorization-grant-type: client_credentials
             scope: openid
         provider:
           keycloak:
-            token-uri: http://localhost:8888/realms/pokestore/protocol/openid-connect/token
+            token-uri: http://localhost:8888/realms/coruscant/protocol/openid-connect/token
   ai:
     ollama:
       base-url: http://localhost:11434

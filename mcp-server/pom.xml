@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.pokestore</groupId>
-        <artifactId>poke-store</artifactId>
+        <groupId>com.jedistore</groupId>
+        <artifactId>jedi-store</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -62,7 +62,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.pokestore</groupId>
+                                    <groupId>com.jedistore</groupId>
                                     <artifactId>api-spec</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/api-spec</outputDirectory>
@@ -88,8 +88,8 @@
                             <library>spring-http-interface</library>
                             <inputSpec>${project.build.directory}/api-spec/openapi/api.yml</inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>com.pokestore.api.generated.client</apiPackage>
-                            <modelPackage>com.pokestore.api.generated.model</modelPackage>
+                            <apiPackage>com.jedistore.api.generated.client</apiPackage>
+                            <modelPackage>com.jedistore.api.generated.model</modelPackage>
                             <templateDirectory>${project.basedir}/src/main/resources/custom</templateDirectory>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>

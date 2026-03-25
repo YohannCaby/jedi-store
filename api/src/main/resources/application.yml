@@ -3,11 +3,11 @@ server:
 
 spring:
   application:
-    name: poke-store-api
+    name: jedi-store-api
   datasource:
-    url: jdbc:postgresql://localhost:5432/pokestore
-    username: pokestore
-    password: pokestore
+    url: jdbc:postgresql://localhost:5432/jedistore
+    username: jedistore
+    password: jedistore
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -23,7 +23,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/realms/pokestore
+          issuer-uri: http://localhost:8888/realms/coruscant
 logging:
   level:
     root: info

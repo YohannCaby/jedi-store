@@ -3,19 +3,19 @@ server:
 
 spring:
   application:
-    name: poke-store-mcp-server
+    name: jedi-store-mcp-server
   ai:
     mcp:
       server:
         protocol: streamable
-        name: poke-store-mcp-server
+        name: jedi-store-mcp-server
         version: 1.0.0
         type: SYNC
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/realms/pokestore
+          issuer-uri: http://localhost:8888/realms/coruscant
 logging:
   level:
     org:

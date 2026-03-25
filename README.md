@@ -1,6 +1,6 @@
-# Poke Store
+# Jedi Store
 
-Application de gestion d'un magasin Pokémon avec architecture microservice, IA conversationnelle et protocole MCP.
+Application de gestion d'un magasin Star Wars avec architecture microservice, IA conversationnelle et protocole MCP.
 
 ## Stack technique
 
@@ -24,7 +24,7 @@ graph TD
     Orchestrateur["orchestrateur\n:8080 (SSE)"]
     MCP["mcp-server\n:8081 (MCP)"]
     Ollama["Ollama\n(ministral-3:3b)"]
-    Keycloak["Keycloak :8888\n(realm: pokestore)\n Exploité sur toute la chaine"]
+    Keycloak["Keycloak :8888\n(realm: jedistore)\n Exploité sur toute la chaine"]
     PostgreSQL[(PostgreSQL :5432)]
 
     Client <-->|SSE| Orchestrateur
@@ -74,7 +74,7 @@ ou simplement des application 'infra' : ollama, keycloak, postgres
 
 Cela démarre :
 - PostgreSQL (`:5432`)
-- Keycloak (`:8888`) — realm `pokestore` à configurer (fichier de configuration sous keycloak/realm-pokestore.json)
+- Keycloak (`:8888`) — realm `jedistore` à configurer (fichier de configuration sous keycloak/realm-jedistore.json)
 - API REST (`:8082`) — avec les migrations Flyway automatiques
 - MCP Server (`:8081`)
 - Orchestrateur (`:8080`)
@@ -97,7 +97,7 @@ java -jar api/target/api-1.0.0-SNAPSHOT.jar
 java -jar mcp-server/target/mcp-server-1.0.0-SNAPSHOT.jar
 java -jar orchestrateur/target/orchestrateur-1.0.0-SNAPSHOT.jar
 ```
-### 4. Premier démarrage de l'instance Keycloak
+lients/s//10 clients/g
 
 La configuration défini dans le dépôt apporte un real, 2 clients et des roles. Cependant plusieurs points restent à configurer:
  - créer un utilisateur 'user', lui définir un mot de passe et lui attribuer le role USER
@@ -189,7 +189,7 @@ La convention de nommage `ROLE_nomOutil` permet au filtrage automatique dans l'o
 
 - URL admin : `http://localhost:8888`
 - Credentials admin : `admin` / `admin`
-- Realm : `pokestore`
+- Realm : `jedistore`
 
 ### Niveaux d'accès
 
@@ -229,9 +229,9 @@ Le MCP Client utilise un client OAuth2 `mcp-auth` (client_credentials) pour appe
 ### Données initiales (Flyway)
 
 - `V1__create_tables.sql` — création du schéma
-- `V2__insert_data.sql` — 100 clients Pokémon, 203 produits, 1000 commandes
+- `V2__insert_data.sql` — 10 clients Star Wars, 30 produits, 50 commandes
 
-Credentials PostgreSQL : `pokestore` / `pokestore` / `pokestore` (user/password/db)
+Credentials PostgreSQL : `jedistore` / `jedistore` / `jedistore` (user/password/db)
 
 ---
 
@@ -241,9 +241,9 @@ Credentials PostgreSQL : `pokestore` / `pokestore` / `pokestore` (user/password/
 
 | Variable | Service | Valeur par défaut |
 |----------|--------|-------------------|
-| `SPRING_DATASOURCE_URL` | api | `jdbc:postgresql://postgres:5432/pokestore` |
-| `SPRING_DATASOURCE_USERNAME` | api | `pokestore` |
-| `SPRING_DATASOURCE_PASSWORD` | api| `pokestore` |
+| `SPRING_DATASOURCE_URL` | api | `jdbc:postgresql://postgres:5432/jedistore` |
+| `SPRING_DATASOURCE_USERNAME` | api | `jedistore` |
+| `SPRING_DATASOURCE_PASSWORD` | api| `jedistore` |
 | `SPRING_AI_OLLAMA_BASE_URL` | orchestrateur, mcp-server | `http://ollama_ministral:11434` |
 | `MCP_SERVER_URL` | orchestrateur | `http://mcp-server:8081` |
 

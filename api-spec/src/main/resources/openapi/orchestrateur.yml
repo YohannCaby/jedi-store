@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
-  title: PokeStore Orchestrateur API
+  title: JediStore Orchestrateur API
   description: API d'orchestration de chat avec Spring AI pour la boutique Pokemon
   version: 1.0.0
   contact:
     name: Groupe Tech
-    email: contact@pokestore.com
+    email: contact@jedistore.com
 servers:
   - url: /
     description: Serveur par defaut

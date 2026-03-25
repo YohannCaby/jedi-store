@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.pokestore</groupId>
-        <artifactId>poke-store</artifactId>
+        <groupId>com.jedistore</groupId>
+        <artifactId>jedi-store</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -17,7 +17,7 @@
     <dependencies>
         <!-- API Spec -->
         <dependency>
-            <groupId>com.pokestore</groupId>
+            <groupId>com.jedistore</groupId>
             <artifactId>api-spec</artifactId>
         </dependency>
 
@@ -28,7 +28,7 @@
         </dependency>
         <!-- Shared -->
         <dependency>
-            <groupId>com.pokestore</groupId>
+            <groupId>com.jedistore</groupId>
             <artifactId>shared-utils</artifactId>
         </dependency>
         <!-- Spring AI Ollama -->
@@ -108,7 +108,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.pokestore</groupId>
+                                    <groupId>com.jedistore</groupId>
                                     <artifactId>api-spec</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/api-spec</outputDirectory>
@@ -132,8 +132,8 @@
                         <configuration>
                             <inputSpec>${project.build.directory}/api-spec/openapi/orchestrateur.yml</inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>com.pokestore.orchestrateur.generated.api</apiPackage>
-                            <modelPackage>com.pokestore.orchestrateur.generated.model</modelPackage>
+                            <apiPackage>com.jedistore.orchestrateur.generated.api</apiPackage>
+                            <modelPackage>com.jedistore.orchestrateur.generated.model</modelPackage>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <useTags>true</useTags>

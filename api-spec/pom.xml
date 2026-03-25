@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.pokestore</groupId>
-        <artifactId>poke-store</artifactId>
+        <groupId>com.jedistore</groupId>
+        <artifactId>jedi-store</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
