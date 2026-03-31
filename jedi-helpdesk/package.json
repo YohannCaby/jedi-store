@@ -1,0 +1,26 @@
+{
+  "name": "jedi-chatbot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Application Vue.js 3 + Vuetify 3 avec SSE en temps réel",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "keycloak-js": "^26.2.3",
+    "marked": "^17.0.1",
+    "pinia": "^3.0.4",
+    "vue": "^3.4.15",
+    "vuetify": "^3.5.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vite-plugin-vuetify": "^2.0.1",
+    "vue-tsc": "^2.2.12"
+  }
+}
