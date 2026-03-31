@@ -47,10 +47,6 @@ poke-chatbot/
 ### Étapes d'installation
 
 ```bash
-# Cloner le projet
-git clone <repository-url>
-cd poke-chatbot
-
 # Installer les dépendances
 npm install
 ```
@@ -258,10 +254,6 @@ Bouton pour basculer entre le thème clair et sombre.
 1. Augmentez `maxReconnectAttempts` dans les options
 2. Vérifiez les logs dans la console
 3. Utilisez le bouton "Reconnecter" manuellement
-
-## Licence
-
-MIT
 
 ## Auteur
 
