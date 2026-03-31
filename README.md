@@ -12,6 +12,7 @@ Application de gestion d'un magasin Star Wars avec architecture microservice, IA
 | PostgreSQL | 16 |
 | Keycloak | 26.5.2 |
 | Ollama | local (`ministral-3:3b`) |
+| Vue 3 + Vuetify 3 | 3.4 / 3.5 |
 
 ---
 
@@ -19,7 +20,7 @@ Application de gestion d'un magasin Star Wars avec architecture microservice, IA
 
 ```mermaid
 graph TD
-    Client[Client HTTP]
+    Client["jedi-helpdesk\n(Vue 3 + Vuetify 3)\n:5173"]
     API["api\n:8082 (REST)"]
     Orchestrateur["orchestrateur\n:8080 (SSE)"]
     MCP["mcp-server\n:8081 (MCP)"]
@@ -65,19 +66,18 @@ graph TD
 ```bash
 docker-compose up -d
 ```
-
-ou simplement des application 'infra' : ollama, keycloak, postgres
-
-```bash
-./start-infra.sh
-```
-
 Cela démarre :
 - PostgreSQL (`:5432`)
 - Keycloak (`:8888`) — realm `jedistore` à configurer (fichier de configuration sous keycloak/realm-jedistore.json)
 - API REST (`:8082`) — avec les migrations Flyway automatiques
 - MCP Server (`:8081`)
 - Orchestrateur (`:8080`)
+
+ou simplement des application 'infra' : ollama, keycloak, postgres
+
+```bash
+./start-infra.sh
+```
 
 ### 2. Vérifier que les services sont up
 
@@ -139,6 +139,16 @@ curl -X PUT http://localhost:8082/orders/1/status \
 ```
 
 Statuts possibles : `IN_PROGRESS`, `DELIVERED`, `CANCELLED`
+
+---
+
+## Interface graphique — jedi-helpdesk (`:5173`)
+
+Application Vue 3 + Vuetify 3 permettant d'interagir avec l'orchestrateur via SSE en temps réel.
+
+Fonctionnalités : chat temps réel, reconnexion automatique avec backoff exponentiel, thème clair/sombre, affichage horodaté des messages.
+
+> Voir [jedi-helpdesk/README.md](jedi-helpdesk/README.md) pour l'installation et la configuration.
 
 ---
 

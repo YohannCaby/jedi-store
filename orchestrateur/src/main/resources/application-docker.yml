@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/realms/coruscant
+          jwk-set-uri: http://keycloak:8080/realms/coruscant/protocol/openid-connect/certs
+      client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/coruscant/protocol/openid-connect/token
+  ai:
+    ollama:
+      base-url: http://llm:11434
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            mcp-server:
+              url: http://mcp-server:8081

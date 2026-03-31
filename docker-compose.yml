@@ -26,7 +26,7 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jedistore
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_USERNAME: jedistore
       SPRING_DATASOURCE_PASSWORD: jedistore
     depends_on:
@@ -43,7 +43,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jedistore
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_USERNAME: jedistore
       SPRING_DATASOURCE_PASSWORD: jedistore
     depends_on:
@@ -62,8 +62,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      MCP_SERVER_URL: http://mcp-server:8081
-      SPRING_AI_OLLAMA_BASE_URL: http://ollama_ministral:11434
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - mcp-server
       - llm
@@ -87,6 +86,19 @@ services:
     networks:
       - jedistore-network
 
+  jedi-helpdesk:
+    build:
+      context: ./jedi-helpdesk
+      dockerfile: Dockerfile
+    container_name: jedistore-helpdesk
+    ports:
+      - "5173:80"
+    depends_on:
+      - orchestrateur
+      - keycloak
+    networks:
+      - jedistore-network
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
     ports:
@@ -94,6 +106,8 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_URL: http://localhost:8888
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8888
     #entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--verbose"]
     volumes:

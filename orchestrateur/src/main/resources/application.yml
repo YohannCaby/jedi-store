@@ -35,6 +35,7 @@ spring:
             mcp-server:
               url: http://localhost:8081
               endpoint: /mcp
+        initialized: false
 logging:
   level:
     root: info
