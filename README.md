@@ -104,6 +104,13 @@ La configuration défini dans le dépôt apporte un real, 2 clients et des roles
  - créer un utilisateur 'yoda', lui définir un mot de passe et lui attribuer le role ADMIN
  - Récupéré le secret du client id mcp-auth et le renseigner dans le fichier src/main/resources/application.yml sous spring.security.oauth2.client.registration.mcp-server.client-secret
 
+Par default deux utilisateurs sont créé avec l'instance docker keycloack:
+
+ | login | password | role |
+ |-------|----------|------|
+ | luke | luke | USER |
+ | yoda | yoda | ADMIN |
+
 ---
 
 ## API REST (`:8082`)
