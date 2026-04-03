@@ -2,6 +2,72 @@
 
 Application de gestion d'un magasin Star Wars avec architecture microservice, IA conversationnelle et protocole MCP.
 
+## Démarrage rapide
+
+### 1. Lancer les services
+
+```bash
+docker-compose up -d
+```
+Cela démarre :
+- PostgreSQL (`:5432`)
+- Keycloak (`:8888`) — realm `coruscant` à configurer (fichier de configuration sous keycloak/realm-coruscant.json)
+- API REST (`:8082`) — avec les migrations Flyway automatiques
+- MCP Server (`:8081`)
+- Orchestrateur (`:8080`)
+- Jedi Helpdesk (`:5173`)
+
+ou simplement des application 'infra' : ollama, keycloak, postgres
+
+```bash
+./start-infra.sh
+```
+Cela permet de lancer depuis son IDE les services api, mcp-server, orchestrateur et jedi-helpdesk pour debug.
+
+### 2. Création des utilisateurs Keycloack
+
+Se rendre sur `http://localhost:8888` credentials admin/admin (security 😎)
+
+1. Manage Realm -> sélecitonner coruscant
+2. Users -> Add User
+3. Email Verifies -> on
+4. username {{ username }
+5. cliquer sur 'Create'
+6. Credentials -> Set Password -> renseigner son {{ password }} -> Temporary -> off -> Save
+7. Role Mapping -> Assign Role -> Real Role -> Selectionn er {{ role }} -> Cliquer sur Assign
+
+Tableau de correspondance:
+
+| username | password | role |
+|----------|----------|------|
+ | yoda | yoda | ADMIN |
+| luke | luke | USER |
+
+Troobleshooting :
+
+Si le realm n'est pas présent au premier dérarrage, le charger manuellement:
+1. Manage Realm -> Create Realm
+2. Resource file -> récupérer le fichier keycloack/jedi-coruscant.json
+3. Cliquer sur Create
+
+### 2. Vérifier que les services sont up
+
+```bash   # Liste des produits
+curl http://localhost:8080/actuator/health  # Santé de l'orchestrateur
+```
+
+### 3. Démarrage local (sans Docker)
+
+```bash
+# Build complet
+mvn clean package -DskipTests
+
+# Lancer chaque service (PostgreSQL et Keycloak doivent tourner)
+java -jar api/target/api-1.0.0-SNAPSHOT.jar
+java -jar mcp-server/target/mcp-server-1.0.0-SNAPSHOT.jar
+java -jar orchestrateur/target/orchestrateur-1.0.0-SNAPSHOT.jar
+```
+
 ## Stack technique
 
 | Technologie | Version |
@@ -58,58 +124,6 @@ graph TD
 - **Maven 3.9+** et **Java 25** (pour le développement local uniquement)
 
 ---
-
-## Démarrage rapide
-
-### 1. Lancer les services
-
-```bash
-docker-compose up -d
-```
-Cela démarre :
-- PostgreSQL (`:5432`)
-- Keycloak (`:8888`) — realm `jedistore` à configurer (fichier de configuration sous keycloak/realm-jedistore.json)
-- API REST (`:8082`) — avec les migrations Flyway automatiques
-- MCP Server (`:8081`)
-- Orchestrateur (`:8080`)
-- Jedi Helpdesk (`:5173`)
-
-ou simplement des application 'infra' : ollama, keycloak, postgres
-
-```bash
-./start-infra.sh
-```
-Cela permet de lancer depuis son IDE les services api, mcp-server, orchestrateur et jedi-helpdesk pour debug.
-
-### 2. Vérifier que les services sont up
-
-```bash   # Liste des produits
-curl http://localhost:8080/actuator/health  # Santé de l'orchestrateur
-```
-
-### 3. Démarrage local (sans Docker)
-
-```bash
-# Build complet
-mvn clean package -DskipTests
-
-# Lancer chaque service (PostgreSQL et Keycloak doivent tourner)
-java -jar api/target/api-1.0.0-SNAPSHOT.jar
-java -jar mcp-server/target/mcp-server-1.0.0-SNAPSHOT.jar
-java -jar orchestrateur/target/orchestrateur-1.0.0-SNAPSHOT.jar
-```
-
-La configuration défini dans le dépôt apporte un real, 2 clients et des roles. Cependant plusieurs points restent à configurer:
- - créer un utilisateur 'luke', lui définir un mot de passe et lui attribuer le role USER
- - créer un utilisateur 'yoda', lui définir un mot de passe et lui attribuer le role ADMIN
- - Récupéré le secret du client id mcp-auth et le renseigner dans le fichier src/main/resources/application.yml sous spring.security.oauth2.client.registration.mcp-server.client-secret
-
-Par default deux utilisateurs sont créé avec l'instance docker keycloack:
-
- | login | password | role |
- |-------|----------|------|
- | luke | luke | USER |
- | yoda | yoda | ADMIN |
 
 ---
 

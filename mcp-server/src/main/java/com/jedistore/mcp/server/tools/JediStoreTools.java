@@ -4,18 +4,13 @@ import com.jedistore.api.generated.client.CustomersApi;
 import com.jedistore.api.generated.client.OrdersApi;
 import com.jedistore.api.generated.client.ProductsApi;
 import com.jedistore.api.generated.model.*;
-import com.jedistore.mcp.server.model.ValidationRequest;
+
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.springaicommunity.mcp.annotation.McpTool;
-import org.springaicommunity.mcp.context.McpAsyncRequestContext;
 import org.springaicommunity.mcp.context.McpSyncRequestContext;
-import org.springaicommunity.mcp.context.StructuredElicitResult;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.UUID;

@@ -14,7 +14,7 @@ spring:
           mcp-server:
             provider: keycloak
             client-id: mcp-auth
-            client-secret: A6UQC8t7Oap0tedgqNviWZvdVo3h1loQ
+            client-secret: JDzkgKCaKoQn6mzHnaDrPYiSBMPtjZVu
             authorization-grant-type: client_credentials
             scope: openid
         provider:
