@@ -5,3 +5,6 @@ spring:
         jwt:
           issuer-uri: http://keycloak:8080/realms/coruscant
           jwk-set-uri: http://keycloak:8080/realms/coruscant/protocol/openid-connect/certs
+jedistore:
+  api:
+    base-url: http://api:8082

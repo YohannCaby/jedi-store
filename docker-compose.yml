@@ -108,8 +108,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HOSTNAME_URL: http://localhost:8888
       KC_HOSTNAME_ADMIN_URL: http://localhost:8888
-    #entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--verbose"]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--verbose"]
     volumes:
       - keycloak_data:/opt/keycloak/data
       - ./keycloak/realm-coruscant.json:/opt/keycloak/data/import/realm-coruscant.json
