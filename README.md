@@ -91,7 +91,7 @@ graph TD
     Orchestrateur["orchestrateur\n:8080 (SSE)"]
     MCP["mcp-server\n:8081 (MCP)"]
     Ollama["Ollama\n(ministral-3:3b)"]
-    Keycloak["Keycloak :8888\n(realm: jedistore)\n Exploité sur toute la chaine"]
+    Keycloak["Keycloak :8888\n(realm: coruscant)\n Exploité sur toute la chaine"]
     PostgreSQL[(PostgreSQL :5432)]
 
     Client <-->|SSE| Orchestrateur
@@ -122,8 +122,6 @@ graph TD
 - **Docker & Docker Compose**
 - **NVIDIA Container Toolkit** (optionnel) — pour l'accélération GPU du service Ollama
 - **Maven 3.9+** et **Java 25** (pour le développement local uniquement)
-
----
 
 ---
 
